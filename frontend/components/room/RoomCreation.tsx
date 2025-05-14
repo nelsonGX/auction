@@ -61,18 +61,18 @@ export default function RoomCreation() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Create Auction Room</h2>
+    <div className="w-full max-w-md mx-auto p-8 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 animate-fade-in">
+      <h2 className="text-2xl font-bold mb-6 text-center text-zinc-100">Create Auction Room</h2>
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <div className="mb-5 p-4 bg-red-900/30 border border-red-800 text-red-300 rounded-lg text-sm animate-fade-in">
           {error}
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="animate-slide-in">
+          <label htmlFor="name" className="block text-sm font-medium text-zinc-300 mb-2">
             Room Name
           </label>
           <input
@@ -81,13 +81,15 @@ export default function RoomCreation() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            placeholder="Enter room name"
             required
           />
         </div>
         
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="animate-slide-in" style={{ animationDelay: '50ms' }}>
+          <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-2">
             Room Password
           </label>
           <input
@@ -96,16 +98,18 @@ export default function RoomCreation() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            placeholder="Create a secure password"
             required
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-zinc-500">
             This password will be used to access the host dashboard.
           </p>
         </div>
         
-        <div>
-          <label htmlFor="hostUsername" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="animate-slide-in" style={{ animationDelay: '100ms' }}>
+          <label htmlFor="hostUsername" className="block text-sm font-medium text-zinc-300 mb-2">
             Your Name (Host)
           </label>
           <input
@@ -114,13 +118,15 @@ export default function RoomCreation() {
             name="hostUsername"
             value={formData.hostUsername}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            placeholder="Enter your name"
             required
           />
         </div>
         
-        <div>
-          <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="animate-slide-in" style={{ animationDelay: '150ms' }}>
+          <label htmlFor="startTime" className="block text-sm font-medium text-zinc-300 mb-2">
             Start Time
           </label>
           <input
@@ -130,7 +136,8 @@ export default function RoomCreation() {
             value={formData.startTime}
             onChange={handleChange}
             min={getMinDateTime()}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             required
           />
         </div>
@@ -138,9 +145,20 @@ export default function RoomCreation() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-500 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+          focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
+          transform hover:translate-y-[-2px] active:translate-y-[1px] animate-slide-in"
+          style={{ animationDelay: '200ms' }}
         >
-          {loading ? 'Creating...' : 'Create Auction Room'}
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Creating...
+            </span>
+          ) : (
+            'Create Auction Room'
+          )}
         </button>
       </form>
     </div>

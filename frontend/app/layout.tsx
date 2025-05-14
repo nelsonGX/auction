@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Auction Platform",
-  description: "A real-time auction platform for sequential item bidding",
+  title: "Modern Auction Platform",
+  description: "A real-time auction platform for sequential item bidding with dark mode",
+  themeColor: "#18181b", // zinc-900
 };
 
 export default function RootLayout({
@@ -23,11 +24,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full flex flex-col`}
       >
-        {children}
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
+        
+        <footer className="mt-auto py-6 px-4 border-t border-zinc-800 text-center text-zinc-500 text-sm">
+          <p>© {new Date().getFullYear()} Modern Auction Platform</p>
+        </footer>
       </body>
     </html>
   );

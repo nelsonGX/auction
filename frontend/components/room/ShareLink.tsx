@@ -25,9 +25,9 @@ export default function ShareLink({ roomId }: ShareLinkProps) {
   };
 
   return (
-    <div className="w-full bg-gray-50 border border-gray-200 rounded-lg p-4">
-      <h3 className="text-lg font-medium text-gray-800 mb-2">Share Auction Link</h3>
-      <p className="text-sm text-gray-600 mb-3">
+    <div className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4">
+      <h3 className="text-lg font-medium text-zinc-200 mb-2">Share Auction Link</h3>
+      <p className="text-sm text-zinc-400 mb-3">
         Share this link with participants so they can join your auction.
       </p>
       
@@ -36,12 +36,12 @@ export default function ShareLink({ roomId }: ShareLinkProps) {
           type="text"
           value={auctionUrl}
           readOnly
-          className="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-l-md text-sm focus:outline-none"
+          className="flex-grow px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-l-md text-zinc-300 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-500"
         />
         <button
           onClick={handleCopy}
           className={`px-4 py-2 rounded-r-md text-white text-sm font-medium ${
-            copied ? 'bg-green-600' : 'bg-blue-600 hover:bg-blue-700'
+            copied ? 'bg-green-700' : 'bg-zinc-600 hover:bg-zinc-500'
           }`}
         >
           {copied ? 'Copied!' : 'Copy'}

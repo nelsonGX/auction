@@ -46,23 +46,23 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div className="p-6 bg-blue-500 text-white">
+    <div className="bg-zinc-900 rounded-lg shadow-lg overflow-hidden text-zinc-100">
+      <div className="p-6 bg-zinc-800 text-zinc-100">
         <h2 className="text-2xl font-bold mb-2">Auction Summary</h2>
-        <p className="text-white/80">
+        <p className="text-zinc-400">
           {summary.roomName} | Host: {summary.hostUsername}
         </p>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="border-b">
+      <div className="border-b border-zinc-700">
         <nav className="flex">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-3 text-sm font-medium ${
               activeTab === 'overview'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-indigo-500 text-indigo-400'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Overview
@@ -71,8 +71,8 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
             onClick={() => setActiveTab('items')}
             className={`px-4 py-3 text-sm font-medium ${
               activeTab === 'items'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-indigo-500 text-indigo-400'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Items ({summary.totalItems})
@@ -81,8 +81,8 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
             onClick={() => setActiveTab('participants')}
             className={`px-4 py-3 text-sm font-medium ${
               activeTab === 'participants'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'border-b-2 border-indigo-500 text-indigo-400'
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             Participants ({summary.participants})
@@ -98,20 +98,20 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Auction Duration</h3>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">
+                  <h3 className="text-sm font-medium text-zinc-400">Auction Duration</h3>
+                  <p className="mt-1 text-lg font-semibold text-zinc-100">
                     {formatDuration(summary.duration)}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Start Time</h3>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">
+                  <h3 className="text-sm font-medium text-zinc-400">Start Time</h3>
+                  <p className="mt-1 text-lg font-semibold text-zinc-100">
                     {formatDate(summary.startTime)}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">End Time</h3>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">
+                  <h3 className="text-sm font-medium text-zinc-400">End Time</h3>
+                  <p className="mt-1 text-lg font-semibold text-zinc-100">
                     {formatDate(summary.endTime)}
                   </p>
                 </div>
@@ -119,20 +119,20 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
 
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Total Sales</h3>
-                  <p className="mt-1 text-lg font-semibold text-green-600">
+                  <h3 className="text-sm font-medium text-zinc-400">Total Sales</h3>
+                  <p className="mt-1 text-lg font-semibold text-emerald-400">
                     {formatCurrency(summary.totalSales)}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Average Sale Price</h3>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">
+                  <h3 className="text-sm font-medium text-zinc-400">Average Sale Price</h3>
+                  <p className="mt-1 text-lg font-semibold text-zinc-100">
                     {formatCurrency(summary.averageSalePrice)}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Highest Sale</h3>
-                  <p className="mt-1 text-lg font-semibold text-gray-900">
+                  <h3 className="text-sm font-medium text-zinc-400">Highest Sale</h3>
+                  <p className="mt-1 text-lg font-semibold text-zinc-100">
                     {formatCurrency(summary.highestSale)}
                   </p>
                 </div>
@@ -141,29 +141,29 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
 
             <div className="mt-8">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Results Summary</h3>
+                <h3 className="text-lg font-semibold text-zinc-100">Results Summary</h3>
               </div>
-              <div className="bg-gray-100 rounded-lg p-6">
+              <div className="bg-zinc-800 rounded-lg p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="bg-white p-4 rounded-lg shadow text-center">
-                    <p className="text-sm font-medium text-gray-500">Total Items</p>
-                    <p className="text-2xl font-bold text-gray-900">{summary.totalItems}</p>
+                  <div className="bg-zinc-700 p-4 rounded-lg shadow text-center">
+                    <p className="text-sm font-medium text-zinc-400">Total Items</p>
+                    <p className="text-2xl font-bold text-zinc-100">{summary.totalItems}</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow text-center">
-                    <p className="text-sm font-medium text-gray-500">Sold Items</p>
-                    <p className="text-2xl font-bold text-green-600">{summary.soldItems}</p>
+                  <div className="bg-zinc-700 p-4 rounded-lg shadow text-center">
+                    <p className="text-sm font-medium text-zinc-400">Sold Items</p>
+                    <p className="text-2xl font-bold text-emerald-400">{summary.soldItems}</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow text-center">
-                    <p className="text-sm font-medium text-gray-500">Unsold Items</p>
-                    <p className="text-2xl font-bold text-yellow-600">{summary.unsoldItems}</p>
+                  <div className="bg-zinc-700 p-4 rounded-lg shadow text-center">
+                    <p className="text-sm font-medium text-zinc-400">Unsold Items</p>
+                    <p className="text-2xl font-bold text-amber-400">{summary.unsoldItems}</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow text-center">
-                    <p className="text-sm font-medium text-gray-500">Total Participants</p>
-                    <p className="text-2xl font-bold text-gray-900">{summary.participants}</p>
+                  <div className="bg-zinc-700 p-4 rounded-lg shadow text-center">
+                    <p className="text-sm font-medium text-zinc-400">Total Participants</p>
+                    <p className="text-2xl font-bold text-zinc-100">{summary.participants}</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow text-center">
-                    <p className="text-sm font-medium text-gray-500">Sale Percentage</p>
-                    <p className="text-2xl font-bold text-blue-600">
+                  <div className="bg-zinc-700 p-4 rounded-lg shadow text-center">
+                    <p className="text-sm font-medium text-zinc-400">Sale Percentage</p>
+                    <p className="text-2xl font-bold text-indigo-400">
                       {summary.totalItems ? Math.round((summary.soldItems / summary.totalItems) * 100) : 0}%
                     </p>
                   </div>
@@ -177,65 +177,65 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
         {activeTab === 'items' && (
           <div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-zinc-700">
+                <thead className="bg-zinc-800">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Item
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Starting Price
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Final Price
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Status
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Winner
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Bids
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-zinc-900 divide-y divide-zinc-700">
                   {summary.itemResults.map((item) => (
                     <tr key={item.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                        <div className="text-sm font-medium text-zinc-100">{item.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{formatCurrency(item.startPrice)}</div>
+                        <div className="text-sm text-zinc-400">{formatCurrency(item.startPrice)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm">
                           {item.isSold ? (
-                            <span className="font-semibold text-green-600">{formatCurrency(item.finalPrice)}</span>
+                            <span className="font-semibold text-emerald-400">{formatCurrency(item.finalPrice)}</span>
                           ) : (
-                            <span className="text-gray-500">-</span>
+                            <span className="text-zinc-500">-</span>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {item.isSold ? (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-900 text-emerald-300">
                             Sold
                           </span>
                         ) : (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-900 text-amber-300">
                             Unsold
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-zinc-100">
                           {item.winner ? item.winner.username : '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{item.bidCount}</div>
+                        <div className="text-sm text-zinc-400">{item.bidCount}</div>
                       </td>
                     </tr>
                   ))}
@@ -249,46 +249,46 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
         {activeTab === 'participants' && (
           <div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-zinc-700">
+                <thead className="bg-zinc-800">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Participant
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Items Won
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Total Spent
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-400 uppercase tracking-wider">
                       Bids Placed
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-zinc-900 divide-y divide-zinc-700">
                   {summary.participantStats.map((participant) => (
                     <tr key={participant.participantId}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-zinc-100">
                           {participant.username}
                           {participant.isHost && (
-                            <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-900 text-indigo-300">
                               Host
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{participant.itemsWon}</div>
+                        <div className="text-sm text-zinc-100">{participant.itemsWon}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 font-semibold">
+                        <div className="text-sm text-emerald-400 font-semibold">
                           {formatCurrency(participant.totalSpent)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{participant.bidCount}</div>
+                        <div className="text-sm text-zinc-400">{participant.bidCount}</div>
                       </td>
                     </tr>
                   ))}
@@ -301,15 +301,15 @@ export default function AuctionSummary({ summary }: AuctionSummaryProps) {
               {summary.participantStats
                 .filter(p => p.itemsWon > 0)
                 .map((participant) => (
-                  <div key={`${participant.participantId}-details`} className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">
-                      {participant.username}'s Winning Items
+                  <div key={`${participant.participantId}-details`} className="bg-zinc-800 p-4 rounded-lg">
+                    <h4 className="text-md font-semibold text-zinc-100 mb-3">
+                      {participant.username}&apos;s Winning Items
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                       {participant.wonItems.map(item => (
-                        <div key={item.id} className="bg-white p-3 rounded shadow-sm">
-                          <div className="text-sm font-medium">{item.name}</div>
-                          <div className="text-sm text-green-600">{formatCurrency(item.price)}</div>
+                        <div key={item.id} className="bg-zinc-700 p-3 rounded shadow-sm">
+                          <div className="text-sm font-medium text-zinc-100">{item.name}</div>
+                          <div className="text-sm text-emerald-400">{formatCurrency(item.price)}</div>
                         </div>
                       ))}
                     </div>

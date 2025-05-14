@@ -20,25 +20,25 @@ export default function ParticipantsList({ participants, currentUserId }: Partic
   });
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="bg-gray-50 p-4 border-b">
-        <h3 className="text-lg font-semibold text-gray-800">
+    <div className="w-full bg-zinc-800 rounded-lg shadow-md overflow-hidden">
+      <div className="bg-zinc-800 p-4 border-b border-zinc-600">
+        <h3 className="text-lg font-semibold text-white">
           Participants ({participants.length})
         </h3>
       </div>
       
       <div className="max-h-80 overflow-y-auto">
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-zinc-700">
           {sortedParticipants.map((participant) => (
             <li 
               key={participant.id} 
               className={`flex items-center p-3 ${
-                participant.id === currentUserId ? 'bg-blue-50' : ''
+                participant.id === currentUserId ? 'bg-yellow-950/50' : ''
               }`}
             >
               <div className="w-2 h-2 rounded-full bg-green-500 mr-3" />
               <div className="flex-grow">
-                <p className="text-gray-800">
+                <p className="text-white">
                   {participant.username}
                   {participant.id === currentUserId && ' (You)'}
                 </p>

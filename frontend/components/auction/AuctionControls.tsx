@@ -73,23 +73,33 @@ export default function AuctionControls({
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-semibold mb-4">Host Controls</h3>
+    <div className="w-full bg-zinc-800 rounded-lg shadow-lg p-6 border border-zinc-700 animate-fade-in">
+      <h3 className="text-xl font-semibold mb-5 text-zinc-100">Host Controls</h3>
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <div className="mb-5 p-4 bg-red-900/30 border border-red-800 text-red-300 rounded-lg text-sm animate-fade-in">
           {error}
         </div>
       )}
       
-      <div className="space-y-3">
+      <div className="space-y-4">
         {!isActive && (
           <button
             onClick={() => handleAction('start')}
             disabled={loading}
-            className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
+            className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-500 
+            focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+            focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
+            transform hover:translate-y-[-2px] active:translate-y-[1px] animate-scale"
           >
-            Start Auction
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Starting Auction...
+              </span>
+            ) : (
+              'Start Auction'
+            )}
           </button>
         )}
         
@@ -97,9 +107,19 @@ export default function AuctionControls({
           <button
             onClick={() => handleAction('end-current')}
             disabled={loading}
-            className="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50"
+            className="w-full bg-yellow-600 text-white py-3 px-4 rounded-lg hover:bg-yellow-500 
+            focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 
+            focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
+            transform hover:translate-y-[-2px] active:translate-y-[1px] animate-scale"
           >
-            End Current Item
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Ending Item...
+              </span>
+            ) : (
+              'End Current Item'
+            )}
           </button>
         )}
         
@@ -107,9 +127,19 @@ export default function AuctionControls({
           <button
             onClick={() => handleAction('next')}
             disabled={loading || (hasCurrentItem && false)} // Disable if current item is active
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-500 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+            focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
+            transform hover:translate-y-[-2px] active:translate-y-[1px] animate-scale"
           >
-            Move to Next Item
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Moving to Next Item...
+              </span>
+            ) : (
+              'Move to Next Item'
+            )}
           </button>
         )}
         
@@ -117,20 +147,38 @@ export default function AuctionControls({
           <button
             onClick={() => handleAction('end')}
             disabled={loading}
-            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+            className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-500 
+            focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 
+            focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
+            transform hover:translate-y-[-2px] active:translate-y-[1px] animate-scale"
           >
-            End Auction
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Ending Auction...
+              </span>
+            ) : (
+              'End Auction'
+            )}
           </button>
         )}
       </div>
       
-      <div className="mt-4 text-sm text-gray-500">
-        <p>
-          {loading
-            ? 'Processing...'
-            : isActive
-            ? 'Auction is active'
-            : 'Auction has not started yet'}
+      <div className="mt-5 text-sm text-zinc-400 border-t border-zinc-700 pt-4">
+        <p className={`${isActive ? 'text-green-400' : ''} flex items-center`}>
+          {loading ? (
+            'Processing...'
+          ) : isActive ? (
+            <>
+              <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+              Auction is active
+            </>
+          ) : (
+            <>
+              <span className="inline-block w-2 h-2 rounded-full bg-zinc-500 mr-2"></span>
+              Auction has not started yet
+            </>
+          )}
         </p>
       </div>
     </div>

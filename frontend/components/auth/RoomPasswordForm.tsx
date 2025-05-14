@@ -254,30 +254,30 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
   // Show loading state while checking for existing auth
   if (checkingExistingAuth) {
     return (
-      <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Checking Authentication</h2>
+      <div className="w-full max-w-md mx-auto p-6 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 animate-fade-in">
+        <h2 className="text-2xl font-bold mb-6 text-center text-zinc-100">Checking Authentication</h2>
         <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
-        <p className="text-center text-gray-500">Checking for existing authentication...</p>
+        <p className="text-center text-zinc-400">Checking for existing authentication...</p>
       </div>
     );
   }
 
   // Show password form if no existing auth was found
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Enter Room Password</h2>
+    <div className="w-full max-w-md mx-auto p-8 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 animate-fade-in animate-slide-in">
+      <h2 className="text-2xl font-bold mb-6 text-center text-zinc-100">Enter Room Password</h2>
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <div className="mb-5 p-4 bg-red-900/30 border border-red-800 text-red-300 rounded-lg text-sm animate-fade-in">
           {error}
         </div>
       )}
       
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-2">
             Password
           </label>
           <input
@@ -285,7 +285,9 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            placeholder="Enter room password"
             required
           />
         </div>
@@ -293,15 +295,27 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-500 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+          focus:ring-offset-zinc-800 disabled:opacity-50 transition-all duration-200 
+          transform hover:translate-y-[-2px] active:translate-y-[1px]"
         >
-          {loading ? 'Verifying...' : 'Access Host Dashboard'}
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Verifying...
+            </span>
+          ) : (
+            'Access Host Dashboard'
+          )}
         </button>
         
         {/* Debug button - only for development */}
         <button 
           type="button"
-          className="w-full mt-4 bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm"
+          className="w-full mt-4 bg-zinc-700 text-zinc-200 py-2 px-4 rounded-lg hover:bg-zinc-600 
+          focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 
+          focus:ring-offset-zinc-800 text-sm transition-all duration-200"
           onClick={handleDebug}
         >
           Debug Authentication (Dev Only)

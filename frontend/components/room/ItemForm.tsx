@@ -71,18 +71,18 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-xl font-semibold mb-4">Add Auction Item</h3>
+    <div className="w-full bg-zinc-800 rounded-lg shadow-lg p-6 border border-zinc-700 animate-fade-in">
+      <h3 className="text-xl font-semibold mb-5 text-zinc-100">Add Auction Item</h3>
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <div className="mb-5 p-4 bg-red-900/30 border border-red-800 text-red-300 rounded-lg text-sm animate-fade-in">
           {error}
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="animate-slide-in">
+          <label htmlFor="name" className="block text-sm font-medium text-zinc-300 mb-2">
             Item Name
           </label>
           <input
@@ -91,13 +91,15 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            placeholder="Enter item name"
             required
           />
         </div>
         
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="animate-slide-in" style={{ animationDelay: '50ms' }}>
+          <label htmlFor="description" className="block text-sm font-medium text-zinc-300 mb-2">
             Description
           </label>
           <textarea
@@ -106,13 +108,15 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
+            placeholder="Describe the item (optional)"
           />
         </div>
         
-        <div>
-          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-1">
-            Image URL (optional)
+        <div className="animate-slide-in" style={{ animationDelay: '100ms' }}>
+          <label htmlFor="imageUrl" className="block text-sm font-medium text-zinc-300 mb-2">
+            Image URL <span className="text-zinc-500">(optional)</span>
           </label>
           <input
             type="url"
@@ -120,38 +124,49 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
             name="imageUrl"
             value={formData.imageUrl}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            placeholder="https://example.com/image.jpg"
           />
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-slide-in" style={{ animationDelay: '150ms' }}>
           <div>
-            <label htmlFor="minPrice" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="minPrice" className="block text-sm font-medium text-zinc-300 mb-2">
               Minimum Price
             </label>
-            <input
-              type="number"
-              id="minPrice"
-              name="minPrice"
-              value={formData.minPrice}
-              onChange={handleChange}
-              min="0"
-              step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
+                $
+              </span>
+              <input
+                type="number"
+                id="minPrice"
+                name="minPrice"
+                value={formData.minPrice}
+                onChange={handleChange}
+                min="0"
+                step="0.01"
+                className="w-full pl-8 pr-3 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                placeholder="0.00"
+                required
+              />
+            </div>
           </div>
           
           <div>
-            <label htmlFor="timeoutSecs" className="block text-sm font-medium text-gray-700 mb-1">
-              Timeout (seconds)
+            <label htmlFor="timeoutSecs" className="block text-sm font-medium text-zinc-300 mb-2">
+              Bidding Timeout
             </label>
             <select
               id="timeoutSecs"
               name="timeoutSecs"
               value={formData.timeoutSecs}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200
+              appearance-none cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M10%2012l-6-6h12l-6%206z%22/%3E%3C/svg%3E')] bg-[length:20px_20px] bg-[right_10px_center] bg-no-repeat"
               required
             >
               <option value="30">30 seconds</option>
@@ -166,9 +181,20 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-500 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+          focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
+          transform hover:translate-y-[-2px] active:translate-y-[1px] animate-slide-in"
+          style={{ animationDelay: '200ms' }}
         >
-          {loading ? 'Adding...' : 'Add Item'}
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Adding Item...
+            </span>
+          ) : (
+            'Add Item'
+          )}
         </button>
       </form>
     </div>

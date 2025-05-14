@@ -87,22 +87,22 @@ export default function BidControls({
   console.log('Rendering BidControls with:', { roomId, itemId, participantId, currentPrice, minPrice, disabled });
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-md p-6 border-2 border-red-500">
-      <h3 className="text-xl font-semibold mb-4">Place Your Bid</h3>
+    <div className="w-full bg-zinc-800 rounded-lg shadow-lg p-6 border border-blue-600/50 animate-fade-in">
+      <h3 className="text-xl font-semibold mb-4 text-zinc-100">Place Your Bid</h3>
       
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+        <div className="mb-5 p-4 bg-red-900/30 border border-red-800 text-red-300 rounded-lg text-sm animate-fade-in">
           {error}
         </div>
       )}
       
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="mb-4">
-          <label htmlFor="bidAmount" className="block text-sm font-medium text-gray-700 mb-1">
-            Your Bid (Minimum: {formatCurrency(minimumBid)})
+          <label htmlFor="bidAmount" className="block text-sm font-medium text-zinc-300 mb-2">
+            Your Bid <span className="text-blue-400 font-semibold">(Minimum: {formatCurrency(minimumBid)})</span>
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
               $
             </span>
             <input
@@ -112,7 +112,8 @@ export default function BidControls({
               onChange={handleBidChange}
               min={minimumBid}
               step="0.01"
-              className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-8 pr-3 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               placeholder={minimumBid.toString()}
               disabled={disabled || loading}
               required
@@ -121,14 +122,16 @@ export default function BidControls({
         </div>
         
         {/* Quick bid buttons */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           {quickBidOptions.map(increment => (
             <button
               key={increment}
               type="button"
               onClick={() => handleQuickBid(increment)}
               disabled={disabled || loading}
-              className="px-3 py-1 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 text-sm disabled:opacity-50"
+              className="px-4 py-2 bg-zinc-700 text-zinc-200 rounded-lg hover:bg-zinc-600 
+              focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm disabled:opacity-50
+              transition-all duration-200 animate-scale"
             >
               +{formatCurrency(increment)}
             </button>
@@ -138,15 +141,25 @@ export default function BidControls({
         <button
           type="submit"
           disabled={disabled || loading}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 font-medium"
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-500 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+          focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
+          transform hover:translate-y-[-2px] active:translate-y-[1px]"
         >
-          {loading ? 'Placing Bid...' : 'Place Bid'}
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Placing Bid...
+            </span>
+          ) : (
+            'Place Bid'
+          )}
         </button>
         
         {disabled && !loading && (
-          <p className="mt-2 text-sm text-center text-gray-500">
+          <p className="mt-3 text-sm text-center text-zinc-400">
             {!itemId 
-              ? 'Waiting for an item to become active'
+              ? 'Waiting for an item to become active...'
               : 'You cannot bid at this time'}
           </p>
         )}
