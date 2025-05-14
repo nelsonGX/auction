@@ -1,5 +1,6 @@
 // Room types
 export interface AuctionRoom {
+  items(items: any): unknown;
   hostId: AuctionRoom;
   id: string;
   name: string;

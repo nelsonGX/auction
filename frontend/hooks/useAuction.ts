@@ -146,7 +146,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
             
             // If the room includes items, update the items state
             if (data.room.items && Array.isArray(data.room.items)) {
-              setItems(data.room.items);
+              setItems(data.room.items as unknown as AuctionItem[]);
             }
           } else {
             // Update room's currentItemId
@@ -177,7 +177,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
           
           // If the room includes items, update the items state
           if (data.room.items && Array.isArray(data.room.items)) {
-            setItems(data.room.items);
+            setItems(data.room.items as unknown as AuctionItem[]);
           }
         } else {
           console.error('Received item:next event with missing item data:', data);
