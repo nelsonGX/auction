@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { roomApi, itemApi, participantApi, bidApi } from '../lib/api';
 import useRealtime from './useRealtime';
-import { AuctionRoom, AuctionItem, Participant, Bid, WebSocketEvent } from '../lib/types';
+import { AuctionRoom, AuctionItem, Participant, Bid, WebSocketEvent, AuctionSummary } from '../lib/types';
 
 interface UseAuctionOptions {
   roomId: string;
@@ -19,6 +19,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [summary, setSummary] = useState<AuctionSummary | null>(null);
+  const [showingSummary, setShowingSummary] = useState(false);
 
   // Fetch initial data
   const fetchData = useCallback(async () => {
@@ -102,6 +104,20 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
         } else {
           // Fetch latest data if full items list not provided
           fetchData();
+        }
+        
+        // Fetch the auction summary
+        try {
+          roomApi.getAuctionSummary(roomId)
+            .then(summaryData => {
+              setSummary(summaryData);
+              setShowingSummary(true);
+            })
+            .catch(err => {
+              console.error('Error fetching auction summary:', err);
+            });
+        } catch (err) {
+          console.error('Error initiating summary fetch:', err);
         }
         break;
         
@@ -388,6 +404,31 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       return 0;
     });
 
+  // Method to fetch summary on demand
+  const fetchSummary = async () => {
+    if (!roomId) return;
+    
+    try {
+      setError(null);
+      const summaryData = await roomApi.getAuctionSummary(roomId);
+      setSummary(summaryData);
+      setShowingSummary(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch auction summary');
+      console.error('Error fetching auction summary:', err);
+    }
+  };
+  
+  // Toggle summary visibility
+  const toggleSummary = () => {
+    setShowingSummary(prev => !prev);
+  };
+  
+  // Hide summary
+  const hideSummary = () => {
+    setShowingSummary(false);
+  };
+
   // Return the auction state and actions
   return {
     room,
@@ -401,8 +442,13 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
     loading,
     error,
     isConnected,
+    summary,
+    showingSummary,
     placeBid,
     refreshData: fetchData,
+    fetchSummary,
+    toggleSummary,
+    hideSummary,
     ...(isHost ? hostActions : {}),
   };
 }

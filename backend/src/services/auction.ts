@@ -255,6 +255,95 @@ class AuctionService {
 
     return endedRoom;
   }
+
+  // Generate auction summary
+  async getAuctionSummary(roomId: string) {
+    // Find the room with its items and participants
+    const room = await prisma.auctionRoom.findUnique({
+      where: { id: roomId },
+      include: {
+        items: {
+          include: {
+            winner: true,
+            bids: {
+              orderBy: { timestamp: 'desc' },
+              include: { participant: true },
+            },
+          },
+          orderBy: { position: 'asc' },
+        },
+        participants: true,
+      },
+    });
+
+    if (!room) {
+      throw new NotFoundError('Auction room not found');
+    }
+
+    // Calculate statistics
+    const soldItems = room.items.filter(item => item.isSold);
+    const unsoldItems = room.items.filter(item => !item.isSold && item.endedAt);
+    const totalSales = soldItems.reduce((sum, item) => sum + item.currentPrice, 0);
+    const averageSalePrice = soldItems.length > 0 
+      ? totalSales / soldItems.length 
+      : 0;
+
+    // Participant stats
+    const participantStats = room.participants.map(participant => {
+      const wonItems = room.items.filter(item => item.winnerId === participant.id);
+      const totalSpent = wonItems.reduce((sum, item) => sum + item.currentPrice, 0);
+      const bidCount = room.items.reduce((count, item) => {
+        return count + item.bids.filter(bid => bid.participant.id === participant.id).length;
+      }, 0);
+
+      return {
+        participantId: participant.id,
+        username: participant.username,
+        isHost: participant.isHost,
+        itemsWon: wonItems.length,
+        totalSpent,
+        bidCount,
+        wonItems: wonItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.currentPrice,
+        })),
+      };
+    });
+
+    // Return summary
+    return {
+      roomId: room.id,
+      roomName: room.name,
+      hostUsername: room.hostUsername,
+      startTime: room.startTime,
+      endTime: room.endTime,
+      duration: room.endTime 
+        ? new Date(room.endTime).getTime() - new Date(room.startTime).getTime() 
+        : null,
+      totalItems: room.items.length,
+      soldItems: soldItems.length,
+      unsoldItems: unsoldItems.length,
+      totalSales,
+      averageSalePrice,
+      highestSale: soldItems.length 
+        ? Math.max(...soldItems.map(item => item.currentPrice)) 
+        : 0,
+      participants: room.participants.length,
+      itemResults: room.items.map(item => ({
+        id: item.id,
+        name: item.name,
+        startPrice: item.minPrice,
+        finalPrice: item.currentPrice,
+        isSold: item.isSold,
+        winner: item.winner 
+          ? { id: item.winner.id, username: item.winner.username } 
+          : null,
+        bidCount: item.bids.length,
+      })),
+      participantStats,
+    };
+  }
 }
 
 export default new AuctionService();

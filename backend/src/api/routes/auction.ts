@@ -108,4 +108,21 @@ router.post(
   }
 );
 
+// Get auction summary (available to all participants)
+router.get(
+  '/:roomId/summary',
+  validate([
+    param('roomId').isUUID().withMessage('Valid room ID is required'),
+  ]),
+  roomExists,
+  async (req, res, next) => {
+    try {
+      const summary = await auctionService.getAuctionSummary(req.params.roomId);
+      res.json(summary);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default router;

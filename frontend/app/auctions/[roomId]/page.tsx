@@ -9,6 +9,7 @@ import BidHistory from '../../../components/auction/BidHistory';
 import ParticipantsList from '../../../components/auction/ParticipantsList';
 import UpcomingItems from '../../../components/auction/UpcomingItems';
 import CompletedItems from '../../../components/auction/CompletedItems';
+import AuctionSummary from '../../../components/auction/AuctionSummary';
 import Countdown from '../../../components/auction/Countdown';
 import useAuction from '../../../hooks/useAuction';
 import { bidApi, participantApi } from '../../../lib/api';
@@ -183,6 +184,26 @@ export default function AuctionRoom() {
               </div>
             )}
             
+            {/* Auction Summary Modal */}
+            {auction.showingSummary && auction.summary && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <div className="relative">
+                    <button 
+                      onClick={auction.hideSummary}
+                      className="absolute right-2 top-2 bg-white rounded-full p-2 z-10 text-gray-700 hover:text-gray-900"
+                    >
+                      <span className="sr-only">Close</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    <AuctionSummary summary={auction.summary} />
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Left Column */}
               <div className="lg:col-span-2 space-y-6">
@@ -231,8 +252,12 @@ export default function AuctionRoom() {
                   <div className="space-y-2">
                     <p className="flex justify-between">
                       <span className="text-gray-500">Status:</span>
-                      <span className={`font-medium ${auction.room?.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                        {auction.room?.isActive ? 'Active' : 'Not Started'}
+                      <span className={`font-medium ${auction.room?.isActive ? 'text-green-600' : auction.room?.endTime ? 'text-blue-600' : 'text-yellow-600'}`}>
+                        {auction.room?.isActive 
+                          ? 'Active' 
+                          : auction.room?.endTime 
+                            ? 'Ended' 
+                            : 'Not Started'}
                       </span>
                     </p>
                     <p className="flex justify-between">
@@ -254,6 +279,16 @@ export default function AuctionRoom() {
                       </span>
                     </p>
                   </div>
+                  
+                  {/* Summary view button for ended auctions */}
+                  {auction.room?.endTime && (
+                    <button
+                      onClick={auction.summary ? auction.toggleSummary : auction.fetchSummary}
+                      className="mt-4 w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded"
+                    >
+                      {auction.summary ? 'View Auction Summary' : 'Load Auction Results'}
+                    </button>
+                  )}
                 </div>
                 
                 {/* Participants List */}

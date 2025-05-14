@@ -6,7 +6,8 @@ import {
   AuctionRoom,
   AuctionItem,
   Participant,
-  Bid
+  Bid,
+  AuctionSummary
 } from './types';
 
 import { getApiUrl } from '../utils/apiHelpers';
@@ -146,6 +147,10 @@ export const roomApi = {
     return fetchApi(`/rooms/${roomId}/end`, {
       method: 'POST',
     });
+  },
+  
+  getAuctionSummary: (roomId: string): Promise<AuctionSummary> => {
+    return fetchApi(`/rooms/${roomId}/summary`);
   },
 };
 

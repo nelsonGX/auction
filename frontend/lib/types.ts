@@ -92,3 +92,49 @@ export interface ItemFormData {
   minPrice: number;
   timeoutSecs: number;
 }
+
+// Auction summary types
+export interface AuctionSummary {
+  roomId: string;
+  roomName: string;
+  hostUsername: string;
+  startTime: string;
+  endTime: string | null;
+  duration: number | null;
+  totalItems: number;
+  soldItems: number;
+  unsoldItems: number;
+  totalSales: number;
+  averageSalePrice: number;
+  highestSale: number;
+  participants: number;
+  itemResults: ItemResult[];
+  participantStats: ParticipantStat[];
+}
+
+export interface ItemResult {
+  id: string;
+  name: string;
+  startPrice: number;
+  finalPrice: number;
+  isSold: boolean;
+  winner: {
+    id: string;
+    username: string;
+  } | null;
+  bidCount: number;
+}
+
+export interface ParticipantStat {
+  participantId: string;
+  username: string;
+  isHost: boolean;
+  itemsWon: number;
+  totalSpent: number;
+  bidCount: number;
+  wonItems: {
+    id: string;
+    name: string;
+    price: number;
+  }[];
+}
