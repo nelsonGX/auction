@@ -18,7 +18,7 @@ export const validate = (validations: ValidationChain[]) => {
     // If there are validation errors, format them and return as a BadRequestError
     const errorMessages = errors.array().map(error => {
       if ('msg' in error) {
-        return `${error.msg} ${error.param ? `(${error.param})` : ''}`;
+        return `${error.msg} ${'param' in error && error.param ? `(${error.param})` : ''}`;
       }
       return 'Unknown validation error';
     });

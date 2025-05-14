@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { itemApi } from '../../lib/api';
+import { itemApi, roomApi } from '../../lib/api';
 
 interface ItemFormProps {
   roomId: string;
@@ -63,8 +63,12 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
 
       // Notify parent component
       onItemAdded();
-    } catch (err: any) {
-      setError(err.message || 'Failed to add item. Please try again.');
+    } catch (err: unknown) {
+      setError(
+        err && typeof err === 'object' && 'message' in err
+          ? String(err.message)
+          : 'Failed to add item. Please try again.'
+      );
     } finally {
       setLoading(false);
     }

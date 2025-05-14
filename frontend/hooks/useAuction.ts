@@ -58,8 +58,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       // Fetch participants
       const participantsData = await participantApi.getParticipants(roomId);
       setParticipants(participantsData);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load auction data');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load auction data');
       console.error('Error fetching auction data:', err);
     } finally {
       setLoading(false);
@@ -123,7 +123,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
         
       case 'participant:join':
         if (data.participant) {
-          setParticipants(prev => [...prev, data.participant]);
+          setParticipants(prev => [...prev, data.participant as Participant]);
         } else {
           console.error('Received participant:join event with missing participant data:', data);
         }
@@ -145,16 +145,18 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
             // Update room's currentItemId
             setRoom(prev => {
               if (!prev) return null;
-              return { ...prev, currentItemId: data.item.id };
+              return { ...prev, currentItemId: data.item?.id || null };
             });
           }
           
           // Update in the items list if present
-          setItems(prev => 
-            prev.map(item => 
-              item.id === data.item.id ? { ...item, isActive: true } : item
-            )
-          );
+          if (data.item) {
+            setItems(prev => 
+              prev.map(item => 
+                item.id === data.item?.id ? { ...item, isActive: true } : item
+              )
+            );
+          }
         } else {
           console.error('Received item:next event with missing item data:', data);
           // Refresh all data to ensure consistency
@@ -166,7 +168,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
         console.log('Received bid event:', data);
         // Make sure we have the bid data
         if (data && data.bid) {
-          setBids(prev => [data.bid, ...prev]);
+          setBids(prev => [data.bid as Bid, ...prev]);
           
           // Update the current item price
           if (data.item) {
@@ -176,7 +178,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
             // Update item in the items array
             setItems(prev => 
               prev.map(item => 
-                item.id === data.item.id ? data.item : item
+                item.id === data.item?.id && data.item ? data.item : item
               )
             );
             
@@ -187,14 +189,14 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
           } else {
             // Fallback to updating just the current price
             setCurrentItem(prev => {
-              if (!prev) return null;
+              if (!prev || !data.bid) return prev;
               return { ...prev, currentPrice: data.bid.amount };
             });
             
             // Update in items list too
             setItems(prev => 
               prev.map(item => 
-                item.id === currentItem?.id ? { ...item, currentPrice: data.bid.amount } : item
+                item.id === currentItem?.id && data.bid ? { ...item, currentPrice: data.bid.amount } : item
               )
             );
             
@@ -221,11 +223,11 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
         if (data.item && data.winner) {
           setItems(prev => 
             prev.map(item => 
-              item.id === data.item.id ? { 
+              item.id === data.item?.id ? { 
                 ...item, 
                 isActive: false, 
                 isSold: true, 
-                winnerId: data.winner.id,
+                winnerId: data.winner?.id || null,
                 endedAt: data.item.endedAt || new Date().toISOString()
               } : item
             )
@@ -263,7 +265,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
           
           setItems(prev => 
             prev.map(item => 
-              item.id === data.item.id ? { 
+              item.id === data.item?.id ? { 
                 ...item, 
                 isActive: false,
                 endedManually: true,
@@ -300,7 +302,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
         }
         break;
     }
-  }, [currentItem, fetchData]);
+  }, [currentItem?.id, currentItem?.timeoutSecs, fetchData, roomId]);
 
   // Initialize real-time connection
   const { isConnected } = useRealtime({
@@ -342,8 +344,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       try {
         await roomApi.startAuction(roomId);
         // The WebSocket will update the state
-      } catch (err: any) {
-        setError(err.message || 'Failed to start auction');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to start auction');
       }
     },
     
@@ -351,8 +353,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       try {
         await roomApi.nextItem(roomId);
         // The WebSocket will update the state
-      } catch (err: any) {
-        setError(err.message || 'Failed to move to next item');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to move to next item');
       }
     },
     
@@ -360,8 +362,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       try {
         await roomApi.endCurrentItem(roomId);
         // The WebSocket will update the state
-      } catch (err: any) {
-        setError(err.message || 'Failed to end current item');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to end current item');
       }
     },
     
@@ -369,8 +371,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       try {
         await roomApi.endAuction(roomId);
         // The WebSocket will update the state
-      } catch (err: any) {
-        setError(err.message || 'Failed to end auction');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to end auction');
       }
     },
   };
@@ -385,8 +387,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
     try {
       await bidApi.placeBid(roomId, participantId, currentItem.id, amount);
       // The WebSocket will update the bids and current price
-    } catch (err: any) {
-      setError(err.message || 'Failed to place bid');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to place bid');
     }
   };
 
@@ -413,8 +415,8 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       const summaryData = await roomApi.getAuctionSummary(roomId);
       setSummary(summaryData);
       setShowingSummary(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch auction summary');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch auction summary');
       console.error('Error fetching auction summary:', err);
     }
   };

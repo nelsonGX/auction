@@ -158,7 +158,7 @@ router.get(
       
       res.json({ 
         authenticated: isAuthenticated,
-        hostId: isAuthenticated ? req.session.hostRooms[req.params.roomId] : null
+        hostId: isAuthenticated && req.session.hostRooms ? req.session.hostRooms[req.params.roomId] : null
       });
     } catch (error) {
       next(error);

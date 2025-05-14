@@ -80,8 +80,8 @@ export default function ItemQueue({ roomId, items, onItemsReordered }: ItemQueue
       
       // Refresh the items list
       onItemsReordered();
-    } catch (err: any) {
-      setError(err.message || 'Failed to reorder items');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to reorder items');
     } finally {
       setLoading(false);
       setDraggingId(null);
@@ -103,8 +103,8 @@ export default function ItemQueue({ roomId, items, onItemsReordered }: ItemQueue
       
       await itemApi.deleteItem(roomId, itemId);
       onItemsReordered();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete item');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to delete item');
     } finally {
       setLoading(false);
     }

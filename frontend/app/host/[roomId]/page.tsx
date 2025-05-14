@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { roomApi } from '../../../lib/api';
 import RoomPasswordForm from '../../../components/auth/RoomPasswordForm';
 import ShareLink from '../../../components/room/ShareLink';
@@ -20,7 +20,6 @@ import useAuction from '../../../hooks/useAuction';
 export default function HostDashboard() {
   const params = useParams<{ roomId: string }>()
   const roomId = params.roomId;
-  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [participantId, setParticipantId] = useState<string | null>(null);
   
@@ -59,6 +58,53 @@ export default function HostDashboard() {
       }
     }
     
+  // Handle successful authentication
+  const handleAuthentication = async (hostId: string) => {
+    console.log('HostDashboard: handleAuthentication called with hostId:', hostId);
+    
+    try {
+      // Store auth state in localStorage as backup
+      const authState = {
+        authenticated: true,
+        id: hostId,
+      };
+      console.log('HostDashboard: Setting localStorage with auth state:', authState);
+      
+      // Force synchronous localStorage write and verify
+      localStorage.setItem(`host_auth_${roomId}`, JSON.stringify(authState));
+      const verification = localStorage.getItem(`host_auth_${roomId}`);
+      console.log('HostDashboard: localStorage verification:', verification);
+      
+      if (!verification) {
+        console.error('HostDashboard: localStorage verification failed!');
+      }
+      
+      // Check if session is working (after RoomPasswordForm has set it up)
+      try {
+        const sessionCheck = await roomApi.checkHostAuth(roomId);
+        console.log('HostDashboard: Session check result:', sessionCheck);
+        
+        if (!sessionCheck.authenticated) {
+          console.warn('HostDashboard: Session is not authenticated, but will continue with localStorage');
+        }
+      } catch (sessionErr) {
+        console.error('HostDashboard: Error checking session:', sessionErr);
+      }
+      
+      // Update React state
+      setIsAuthenticated(true);
+      setParticipantId(hostId);
+      
+      console.log('HostDashboard: Authentication complete, state updated');
+    } catch (error) {
+      console.error('HostDashboard: Error in handleAuthentication:', error);
+      
+      // Try to update state anyway
+      setIsAuthenticated(true);
+      setParticipantId(hostId);
+    }
+  };
+
     // Fallback to localStorage if session auth fails
     async function checkLocalStorage() {
       try {
@@ -144,54 +190,7 @@ export default function HostDashboard() {
     }
     
     checkAuthentication();
-  }, [roomId]);
-
-  // Handle successful authentication
-  const handleAuthentication = async (hostId: string) => {
-    console.log('HostDashboard: handleAuthentication called with hostId:', hostId);
-    
-    try {
-      // Store auth state in localStorage as backup
-      const authState = {
-        authenticated: true,
-        id: hostId,
-      };
-      console.log('HostDashboard: Setting localStorage with auth state:', authState);
-      
-      // Force synchronous localStorage write and verify
-      localStorage.setItem(`host_auth_${roomId}`, JSON.stringify(authState));
-      const verification = localStorage.getItem(`host_auth_${roomId}`);
-      console.log('HostDashboard: localStorage verification:', verification);
-      
-      if (!verification) {
-        console.error('HostDashboard: localStorage verification failed!');
-      }
-      
-      // Check if session is working (after RoomPasswordForm has set it up)
-      try {
-        const sessionCheck = await roomApi.checkHostAuth(roomId);
-        console.log('HostDashboard: Session check result:', sessionCheck);
-        
-        if (!sessionCheck.authenticated) {
-          console.warn('HostDashboard: Session is not authenticated, but will continue with localStorage');
-        }
-      } catch (sessionErr) {
-        console.error('HostDashboard: Error checking session:', sessionErr);
-      }
-      
-      // Update React state
-      setIsAuthenticated(true);
-      setParticipantId(hostId);
-      
-      console.log('HostDashboard: Authentication complete, state updated');
-    } catch (error) {
-      console.error('HostDashboard: Error in handleAuthentication:', error);
-      
-      // Try to update state anyway
-      setIsAuthenticated(true);
-      setParticipantId(hostId);
-    }
-  };
+  }, [roomId, isAuthenticated]);
 
   // Get auction state with host controls
   const auction = useAuction({
@@ -224,13 +223,8 @@ export default function HostDashboard() {
   };
 
   if (!isAuthenticated) {
-    console.log('HostDashboard: Not authenticated, showing RoomPasswordForm');
-    console.log('HostDashboard: handleAuthentication function exists:', !!handleAuthentication);
-    
-    // Create a wrapper function to ensure it's correctly passed
     const authCallback = (hostId: string) => {
       console.log('HostDashboard: Authentication callback wrapper called with hostId:', hostId);
-      handleAuthentication(hostId);
     };
     
     return <RoomPasswordForm onAuthentication={authCallback} />;

@@ -1,5 +1,6 @@
 // Room types
 export interface AuctionRoom {
+  hostId: AuctionRoom;
   id: string;
   name: string;
   hostUsername: string;
@@ -65,7 +66,7 @@ export interface WebSocketEvent {
   winner?: Participant | null;
   
   // For flexibility and future properties
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // API response types
@@ -88,7 +89,7 @@ export interface CreateRoomFormData {
 export interface ItemFormData {
   name: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string;
   minPrice: number;
   timeoutSecs: number;
 }

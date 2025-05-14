@@ -12,7 +12,7 @@ import CompletedItems from '../../../components/auction/CompletedItems';
 import AuctionSummary from '../../../components/auction/AuctionSummary';
 import Countdown from '../../../components/auction/Countdown';
 import useAuction from '../../../hooks/useAuction';
-import { bidApi, participantApi } from '../../../lib/api';
+import { participantApi } from '../../../lib/api';
 
 export default function AuctionRoom() {
   const params = useParams<{ roomId: string }>();
@@ -31,6 +31,7 @@ export default function AuctionRoom() {
         setUsername(name);
         setIsJoined(true);
       } catch (err) {
+        console.error('Error parsing stored participant data:', err);
         localStorage.removeItem(`participant_${roomId}`);
       }
     }

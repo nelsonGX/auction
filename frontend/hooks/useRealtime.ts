@@ -86,7 +86,7 @@ export default function useRealtime({
       onConnected?.();
       
       // Verify we've joined the room
-      socket.emit('verify-room', { roomId }, (response: any) => {
+      socket.emit('verify-room', { roomId }, (response: unknown) => {
         console.log(`Room verification response: ${JSON.stringify(response)}`);
       });
     });
@@ -116,7 +116,7 @@ export default function useRealtime({
       const socket = socketCache.get(cacheKey)!;
       
       // If socket is disconnected, reconnect it
-      if (!socket.connected && !socket.connecting) {
+      if (!socket.connected) {
         console.log('Reconnecting existing cached socket');
         socket.connect();
       }
@@ -153,7 +153,7 @@ export default function useRealtime({
   }, [roomId, participantId, getCacheKey]);
 
   // Send a message through Socket.IO
-  const send = useCallback((event: string, message: any) => {
+  const send = useCallback((event: string, message: unknown) => {
     if (socketRef.current?.connected) {
       socketRef.current.emit(event, message);
       return true;
@@ -190,12 +190,12 @@ export default function useRealtime({
         ];
         
         eventTypes.forEach(eventType => {
-          socketRef.current.off(eventType);
+          socketRef.current?.off(eventType);
         });
         
-        socketRef.current.off('connect');
-        socketRef.current.off('disconnect');
-        socketRef.current.off('connect_error');
+        socketRef.current?.off('connect');
+        socketRef.current?.off('disconnect');
+        socketRef.current?.off('connect_error');
       }
     };
   }, [roomId, participantId, getOrCreateSocket, setupEventListeners]);

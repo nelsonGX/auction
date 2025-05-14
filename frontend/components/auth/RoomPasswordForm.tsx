@@ -123,7 +123,8 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
       console.log('RoomPasswordForm: onAuthentication exists?', !!onAuthentication);
       
       // Force authentication with a generated ID if none is available
-      const finalHostId = hostId || `generated-host-${Date.now()}`;
+      // Ensure finalHostId is always a string
+      const finalHostId = typeof hostId === 'string' ? hostId : `generated-host-${Date.now()}`;
       
       // Store authentication in localStorage as backup
       try {
@@ -217,7 +218,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
         console.log('API auth succeeded unexpectedly - using returned data');
         
         if (onAuthentication) {
-          onAuthentication(result.id || testHostId);
+          onAuthentication('id' in result ? result.id : testHostId);
         } else {
           router.push(`/host/${roomId}`);
         }

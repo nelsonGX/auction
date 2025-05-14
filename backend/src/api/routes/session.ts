@@ -20,7 +20,8 @@ router.post(
   ]),
   async (req, res, next) => {
     try {
-      const { roomId, hostId } = req.body;
+      const { roomId } = req.body;
+      let hostId = req.body.hostId;
 
       console.log(`[reconnect-session] Attempting to find participant with id: ${hostId}`);
       

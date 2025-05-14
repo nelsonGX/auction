@@ -30,7 +30,7 @@ async function fetchApi<T>(
   const roomId = roomIdMatch ? roomIdMatch[1] : null;
   
   // If we have a roomId, try to get auth from localStorage as fallback
-  let customHeaders: Record<string, string> = {
+  const customHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
   };
   
@@ -95,7 +95,7 @@ export const roomApi = {
 
   authenticate: (roomId: string, password: string): Promise<{ authenticated: boolean, id: string, room: AuctionRoom }> => {
     console.log('API: authenticate called with roomId:', roomId);
-    return fetchApi(`/rooms/${roomId}/auth`, {
+    return fetchApi<{ authenticated: boolean, id: string, room: AuctionRoom }>(`/rooms/${roomId}/auth`, {
       method: 'POST',
       body: JSON.stringify({ password }),
     }).then(result => {

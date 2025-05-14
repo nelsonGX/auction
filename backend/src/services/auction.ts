@@ -99,7 +99,7 @@ class AuctionService {
 
     // Mark current item as not active and possibly sold if it had bids
     const highestBid = await prisma.bid.findFirst({
-      where: { itemId: room.currentItemId },
+      where: { itemId: room.currentItemId! },
       orderBy: { amount: 'desc' },
       include: { participant: true },
     });

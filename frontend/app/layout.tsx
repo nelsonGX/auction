@@ -33,7 +33,7 @@ export default function RootLayout({
         </div>
         
         <footer className="mt-auto py-6 px-4 border-t border-zinc-800 text-center text-zinc-500 text-sm">
-          <p>© {new Date().getFullYear()} Modern Auction Platform</p>
+          <p>© {new Date().getFullYear()} Nelson&apos;s Auction.</p>
         </footer>
       </body>
     </html>
