@@ -69,8 +69,6 @@ export default function AuctionControls({
           throw new Error('Invalid action');
       }
       
-      
-
       onAction(action);
       
       setError('');

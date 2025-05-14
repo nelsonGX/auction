@@ -395,7 +395,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
 
   // Computed properties
   const upcomingItems = items
-    .filter(item => !item.isSold && !item.isActive)
+    .filter(item => !item.isSold && !item.isActive && !item.endedManually && !item.endedAt)
     .sort((a, b) => a.position - b.position);
     
   const completedItems = items

@@ -284,8 +284,9 @@ export default function HostDashboard() {
                     roomId={roomId}
                     isActive={!!auction.room?.isActive}
                     hasCurrentItem={!!auction.currentItem}
-                    hasNextItem={auction.upcomingItems.length > 0}
+                    hasNextItem={auction.upcomingItems.filter(item => !item.endedManually && !item.isSold).length > 0}
                     onAction={handleAction}
+                    currentItemEnded={!!auction.currentItem && !auction.currentItem.isActive}
                   />
                 </div>
                 

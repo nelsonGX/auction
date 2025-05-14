@@ -88,9 +88,19 @@ class AuctionService {
       throw new BadRequestError('Current item not found in sequence');
     }
 
-    // Check if current item is the last item
+    // Check if current item is the last item or if there are no more active items
     if (currentIndex === room.items.length - 1) {
       // End the auction if this is the last item
+      return this.endAuction(roomId);
+    }
+    
+    // Check if there are any upcoming items that are not already ended or sold
+    const upcomingItems = room.items.filter((item, idx) => 
+      idx > currentIndex && !item.endedManually && !item.isSold && !item.endedAt
+    );
+    
+    if (upcomingItems.length === 0) {
+      // No more items to auction, end the auction
       return this.endAuction(roomId);
     }
 
