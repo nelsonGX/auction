@@ -26,20 +26,12 @@ export default function RoomCreation() {
     setError('');
 
     try {
-      // Format start time for API
-      const startTimeDate = new Date(formData.startTime);
-      
-      // Validate date
-      if (startTimeDate < new Date()) {
-        throw new Error('Start time must be in the future');
-      }
 
       // Use the API client to create a room
       const data = await roomApi.create({
         name: formData.name,
         password: formData.password,
         hostUsername: formData.hostUsername,
-        startTime: startTimeDate.toISOString(),
       });
       
       // Redirect to host dashboard
@@ -52,14 +44,6 @@ export default function RoomCreation() {
       setLoading(false);
     }
   };
-
-  // Helper to get minimum date-time string for the input
-  const getMinDateTime = () => {
-    const now = new Date();
-    now.setMinutes(now.getMinutes() + 5); // At least 5 minutes in the future
-    return now.toISOString().slice(0, 16); // Format as YYYY-MM-DDTHH:MM
-  };
-
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 animate-fade-in">
       <h2 className="text-2xl font-bold mb-6 text-center text-zinc-100">Create Auction Room</h2>
@@ -121,23 +105,6 @@ export default function RoomCreation() {
             className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             placeholder="Enter your name"
-            required
-          />
-        </div>
-        
-        <div className="animate-slide-in" style={{ animationDelay: '150ms' }}>
-          <label htmlFor="startTime" className="block text-sm font-medium text-zinc-300 mb-2">
-            Start Time
-          </label>
-          <input
-            type="datetime-local"
-            id="startTime"
-            name="startTime"
-            value={formData.startTime}
-            onChange={handleChange}
-            min={getMinDateTime()}
-            className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             required
           />
         </div>

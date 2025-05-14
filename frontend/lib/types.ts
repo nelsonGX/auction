@@ -83,7 +83,6 @@ export interface CreateRoomFormData {
   name: string;
   password: string;
   hostUsername: string;
-  startTime: string;
 }
 
 export interface ItemFormData {

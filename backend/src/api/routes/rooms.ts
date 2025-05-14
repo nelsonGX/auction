@@ -14,7 +14,6 @@ router.post(
     body('name').notEmpty().withMessage('Room name is required'),
     body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters'),
     body('hostUsername').notEmpty().withMessage('Host username is required'),
-    body('startTime').isISO8601().withMessage('Valid start time is required'),
   ]),
   async (req, res, next) => {
     try {
@@ -22,7 +21,7 @@ router.post(
         name: req.body.name,
         password: req.body.password,
         hostUsername: req.body.hostUsername,
-        startTime: new Date(req.body.startTime),
+        startTime: new Date(),
       };
 
       const room = await roomService.createRoom(roomData);
@@ -97,7 +96,6 @@ router.put(
   verifyHostSession,
   async (req: RoomRequest, res, next) => {
     try {
-      // Extract only allowed fields
       const updateData = {
         name: req.body.name,
         startTime: req.body.startTime ? new Date(req.body.startTime) : undefined,
