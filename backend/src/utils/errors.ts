@@ -1,11 +1,13 @@
 export class AppError extends Error {
   public statusCode: number;
   public isOperational: boolean;
+  public details?: any;
 
-  constructor(message: string, statusCode: number, isOperational = true) {
+  constructor(message: string, statusCode: number, isOperational = true, details?: any) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = isOperational;
+    this.details = details;
     
     // Capture stack trace
     Error.captureStackTrace(this, this.constructor);
@@ -28,8 +30,8 @@ export class BadRequestError extends AppError {
 
 // Unauthorized Error
 export class UnauthorizedError extends AppError {
-  constructor(message = 'Unauthorized') {
-    super(message, 401);
+  constructor(message = 'Unauthorized', details?: any) {
+    super(message, 401, true, details);
   }
 }
 

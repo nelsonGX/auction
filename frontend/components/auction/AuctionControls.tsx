@@ -19,11 +19,28 @@ export default function AuctionControls({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const attemptSessionReconnect = async () => {
+    try {
+      const storedAuth = localStorage.getItem(`host_auth_${roomId}`);
+      if (storedAuth) {
+        const { id } = JSON.parse(storedAuth);
+        await roomApi.reconnectSession(roomId, id).catch(err => {
+          console.warn('Session reconnect failed:', err);
+        });
+      }
+    } catch (reconnectErr) {
+      console.warn('Error during session reconnection attempt:', reconnectErr);
+    }
+  };
+
   const handleAction = async (action: 'start' | 'next' | 'end-current' | 'end') => {
     setLoading(true);
     setError('');
 
     try {
+      // Try to reconnect session first
+      await attemptSessionReconnect();
+      
       // Use API client to perform the appropriate action
       let result;
       switch (action) {
@@ -47,7 +64,7 @@ export default function AuctionControls({
         throw new Error('Failed to perform action');
       }
 
-      onAction(action);
+      // No need to call onAction since the WebSocket event will trigger the UI update
     } catch (err: any) {
       setError(err.message || 'Failed to perform action. Please try again.');
     } finally {

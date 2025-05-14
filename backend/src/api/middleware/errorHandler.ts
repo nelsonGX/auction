@@ -25,10 +25,17 @@ export const errorHandler = (
 
   // If it's an operational error (expected error), send the appropriate response
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
+    const response: any = {
       status: 'error',
-      message: err.message,
-    });
+      message: err.message
+    };
+    
+    // Include error details if available and we're in development
+    if (err.details && (process.env.NODE_ENV === 'development' || process.env.DEBUG_ERRORS === 'true')) {
+      response.details = err.details;
+    }
+    
+    return res.status(err.statusCode).json(response);
   }
 
   // For unexpected errors, send a generic error message

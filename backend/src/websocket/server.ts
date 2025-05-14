@@ -4,7 +4,6 @@ import logger from '../utils/logger';
 
 export class WebSocketServer {
   private io: Server;
-  private roomNamespace: any;
 
   constructor(httpServer: HttpServer) {
     this.io = new Server(httpServer, {
@@ -12,10 +11,8 @@ export class WebSocketServer {
         origin: process.env.FRONTEND_URL || '*',
         methods: ['GET', 'POST'],
       },
+      path: '/ws',
     });
-
-    // Create a namespace for auction rooms
-    this.roomNamespace = this.io.of('/auction-rooms');
 
     // Initialize connection handling
     this.initialize();
@@ -23,37 +20,53 @@ export class WebSocketServer {
 
   private initialize(): void {
     // Handle new connections
-    this.roomNamespace.on('connection', (socket: Socket) => {
-      logger.info(`New client connected: ${socket.id}`);
+    this.io.on('connection', (socket: Socket) => {
+      const roomId = socket.handshake.query.roomId as string;
+      const participantId = socket.handshake.query.participantId as string;
+      
+      logger.info(`New client connected: ${socket.id}`, { roomId, participantId });
 
-      // Join a specific auction room
-      socket.on('join-room', (roomId: string) => {
+      if (roomId) {
         socket.join(roomId);
         logger.debug(`Client ${socket.id} joined room: ${roomId}`);
-      });
-
-      // Leave a specific auction room
-      socket.on('leave-room', (roomId: string) => {
-        socket.leave(roomId);
-        logger.debug(`Client ${socket.id} left room: ${roomId}`);
-      });
+      }
 
       // Handle disconnections
       socket.on('disconnect', () => {
         logger.info(`Client disconnected: ${socket.id}`);
+      });
+      
+      // Verify room connection for debugging
+      socket.on('verify-room', (data, callback) => {
+        const { roomId } = data;
+        const rooms = Array.from(socket.rooms);
+        const isInRoom = rooms.includes(roomId);
+        logger.info(`Room verification request from ${socket.id}`, { 
+          requestedRoom: roomId, 
+          clientRooms: rooms,
+          isInRoom 
+        });
+        
+        if (callback && typeof callback === 'function') {
+          callback({ 
+            success: true, 
+            isInRoom,
+            rooms
+          });
+        }
       });
     });
   }
 
   // Emit an event to all clients in a specific room
   public emitToRoom(roomId: string, event: string, data: any): void {
-    this.roomNamespace.to(roomId).emit(event, data);
+    this.io.to(roomId).emit(event, data);
     logger.debug(`Emitted ${event} to room ${roomId}`, { data });
   }
 
   // Emit an event to all connected clients
   public emitToAll(event: string, data: any): void {
-    this.roomNamespace.emit(event, data);
+    this.io.emit(event, data);
     logger.debug(`Emitted ${event} to all clients`, { data });
   }
 }

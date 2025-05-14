@@ -16,15 +16,57 @@ const getFullApiUrl = (endpoint: string) => {
   return getApiUrl(endpoint);
 };
 
+// Keep a global cache of room auth for fallback
+const authCache: Record<string, string> = {};
+
 // Helper for fetch requests
 async function fetchApi<T>(
   endpoint: string, 
   options: RequestInit = {}
 ): Promise<T> {
+  // Check if this is a room-specific endpoint
+  const roomIdMatch = endpoint.match(/\/rooms\/([^\/]+)/);
+  const roomId = roomIdMatch ? roomIdMatch[1] : null;
+  
+  // If we have a roomId, try to get auth from localStorage as fallback
+  let customHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Add custom auth header for host operations if possible
+  if (roomId) {
+    try {
+      // First check our cache
+      let hostId = authCache[roomId];
+      
+      // If not in cache, try localStorage
+      if (!hostId) {
+        const storedAuth = localStorage.getItem(`host_auth_${roomId}`);
+        if (storedAuth) {
+          const parsed = JSON.parse(storedAuth);
+          if (parsed.authenticated && parsed.id) {
+            hostId = parsed.id;
+            // Store in cache for future use
+            authCache[roomId] = hostId;
+          }
+        }
+      }
+      
+      // If we found a hostId, add it as a header
+      if (hostId) {
+        customHeaders['X-Host-ID'] = hostId;
+        customHeaders['X-Room-ID'] = roomId;
+      }
+    } catch (err) {
+      console.warn('Error preparing auth headers:', err);
+    }
+  }
+  
   const response = await fetch(getFullApiUrl(endpoint), {
     ...options,
+    credentials: 'include', // Include cookies for session authentication
     headers: {
-      'Content-Type': 'application/json',
+      ...customHeaders,
       ...options.headers,
     },
   });
@@ -61,6 +103,17 @@ export const roomApi = {
     }).catch(error => {
       console.error('API: authenticate error:', error);
       throw error;
+    });
+  },
+  
+  checkHostAuth: (roomId: string): Promise<{ authenticated: boolean, hostId: string | null }> => {
+    return fetchApi(`/rooms/${roomId}/host-auth`);
+  },
+  
+  reconnectSession: (roomId: string, hostId: string): Promise<{ success: boolean, authenticated: boolean, hostId: string }> => {
+    return fetchApi(`/reconnect-session`, {
+      method: 'POST',
+      body: JSON.stringify({ roomId, hostId }),
     });
   },
 

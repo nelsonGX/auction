@@ -65,81 +65,226 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
   }, [roomId]);
 
   // Handle WebSocket events
-  const handleRealtimeEvent = useCallback((event: WebSocketEvent) => {
-    switch (event.type) {
+  const handleRealtimeEvent = useCallback((data: WebSocketEvent, eventType: string) => {
+    console.log(`Processing event ${eventType}:`, data);
+    
+    switch (eventType) {
       case 'room:start':
-        setRoom(prev => prev ? { ...prev, isActive: true } : null);
+        // Update room active state
+        setRoom(prev => {
+          if (!prev) return null;
+          return { ...prev, isActive: true };
+        });
+        
+        // If data includes currentItem, update it as well
+        if (data.currentItem) {
+          setCurrentItem(data.currentItem);
+          if (data.currentItem.timeoutSecs) {
+            setTimeRemaining(data.currentItem.timeoutSecs);
+          }
+        } else if (data.currentItemId) {
+          // Refresh data to get the latest state including current item
+          fetchData();
+        }
         break;
         
       case 'room:end':
-        setRoom(prev => prev ? { ...prev, isActive: false, endTime: new Date().toISOString() } : null);
+        setRoom(prev => {
+          if (!prev) return null;
+          return { ...prev, isActive: false, endTime: new Date().toISOString() };
+        });
         setCurrentItem(null);
         setTimeRemaining(null);
+        
+        // Make sure to update any items that were still active
+        if (data.items) {
+          setItems(data.items);
+        } else {
+          // Fetch latest data if full items list not provided
+          fetchData();
+        }
         break;
         
       case 'participant:join':
-        setParticipants(prev => [...prev, event.participant]);
+        if (data.participant) {
+          setParticipants(prev => [...prev, data.participant]);
+        } else {
+          console.error('Received participant:join event with missing participant data:', data);
+        }
         break;
         
       case 'item:next':
-        setCurrentItem(event.item);
-        setBids([]);
-        // Reset timeout
-        if (event.item.timeoutSecs) {
-          setTimeRemaining(event.item.timeoutSecs);
+        if (data.item) {
+          setCurrentItem(data.item);
+          setBids([]);
+          // Reset timeout
+          if (data.item.timeoutSecs) {
+            setTimeRemaining(data.item.timeoutSecs);
+          }
+          
+          // If the room data is included, update room as well
+          if (data.room) {
+            setRoom(data.room);
+          } else {
+            // Update room's currentItemId
+            setRoom(prev => {
+              if (!prev) return null;
+              return { ...prev, currentItemId: data.item.id };
+            });
+          }
+          
+          // Update in the items list if present
+          setItems(prev => 
+            prev.map(item => 
+              item.id === data.item.id ? { ...item, isActive: true } : item
+            )
+          );
+        } else {
+          console.error('Received item:next event with missing item data:', data);
+          // Refresh all data to ensure consistency
+          fetchData();
         }
         break;
         
       case 'item:bid':
-        setBids(prev => [event.bid, ...prev]);
-        setCurrentItem(prev => prev ? { ...prev, currentPrice: event.bid.amount } : null);
-        // Reset timeout if we have current item
-        if (currentItem?.timeoutSecs) {
-          setTimeRemaining(currentItem.timeoutSecs);
+        console.log('Received bid event:', data);
+        // Make sure we have the bid data
+        if (data && data.bid) {
+          setBids(prev => [data.bid, ...prev]);
+          
+          // Update the current item price
+          if (data.item) {
+            // If the event includes the updated item, use it directly
+            setCurrentItem(data.item);
+            
+            // Update item in the items array
+            setItems(prev => 
+              prev.map(item => 
+                item.id === data.item.id ? data.item : item
+              )
+            );
+            
+            // Reset timeout using the updated item
+            if (data.item.timeoutSecs) {
+              setTimeRemaining(data.item.timeoutSecs);
+            }
+          } else {
+            // Fallback to updating just the current price
+            setCurrentItem(prev => {
+              if (!prev) return null;
+              return { ...prev, currentPrice: data.bid.amount };
+            });
+            
+            // Update in items list too
+            setItems(prev => 
+              prev.map(item => 
+                item.id === currentItem?.id ? { ...item, currentPrice: data.bid.amount } : item
+              )
+            );
+            
+            // Reset timeout based on current item
+            if (currentItem?.timeoutSecs) {
+              setTimeRemaining(currentItem.timeoutSecs);
+            }
+          }
+        } else {
+          console.error('Invalid bid data received:', data);
         }
         break;
         
       case 'item:timeout:warning':
-        setTimeRemaining(event.secondsLeft);
+        if (data.secondsLeft !== undefined) {
+          setTimeRemaining(data.secondsLeft);
+        } else {
+          console.error('Received item:timeout:warning without secondsLeft:', data);
+        }
         break;
         
       case 'item:sold':
         // Update the sold item in the items list
-        setItems(prev => 
-          prev.map(item => 
-            item.id === event.item.id ? { ...item, isSold: true, winnerId: event.winner.id } : item
-          )
-        );
-        // If this is our current item, mark it as sold
-        if (currentItem?.id === event.item.id) {
-          setCurrentItem({ ...event.item, isSold: true, winnerId: event.winner.id });
+        if (data.item && data.winner) {
+          setItems(prev => 
+            prev.map(item => 
+              item.id === data.item.id ? { 
+                ...item, 
+                isActive: false, 
+                isSold: true, 
+                winnerId: data.winner.id,
+                endedAt: data.item.endedAt || new Date().toISOString()
+              } : item
+            )
+          );
+          
+          // If this is our current item, mark it as sold
+          if (currentItem?.id === data.item.id) {
+            setCurrentItem({ 
+              ...data.item, 
+              isActive: false, 
+              isSold: true, 
+              winnerId: data.winner.id,
+              endedAt: data.item.endedAt || new Date().toISOString()
+            });
+            
+            // Clear timeout when item is sold
+            setTimeRemaining(0);
+          }
+          
+          // Update room if provided
+          if (data.room) {
+            setRoom(data.room);
+          }
+        } else {
+          console.error('Received item:sold event with missing data:', data);
+          // Refresh to ensure state consistency
+          fetchData();
         }
         break;
         
       case 'item:manually_ended':
         // Update the ended item in the items list
-        setItems(prev => 
-          prev.map(item => 
-            item.id === event.item.id ? { 
-              ...item, 
+        if (data.item) {
+          const hasWinner = !!data.winner;
+          
+          setItems(prev => 
+            prev.map(item => 
+              item.id === data.item.id ? { 
+                ...item, 
+                isActive: false,
+                endedManually: true,
+                isSold: hasWinner,
+                winnerId: data.winner?.id || null,
+                endedAt: data.item.endedAt || new Date().toISOString() 
+              } : item
+            )
+          );
+          
+          // If this is our current item, mark it as ended
+          if (currentItem?.id === data.item.id) {
+            setCurrentItem({ 
+              ...data.item, 
+              isActive: false,
               endedManually: true,
-              isSold: !!event.winner,
-              winnerId: event.winner?.id || null
-            } : item
-          )
-        );
-        // If this is our current item, mark it as ended
-        if (currentItem?.id === event.item.id) {
-          setCurrentItem({ 
-            ...event.item, 
-            endedManually: true,
-            isSold: !!event.winner,
-            winnerId: event.winner?.id || null
-          });
+              isSold: hasWinner,
+              winnerId: data.winner?.id || null,
+              endedAt: data.item.endedAt || new Date().toISOString()
+            });
+            
+            // Clear timeout when item is manually ended
+            setTimeRemaining(0);
+          }
+          
+          // Update room if provided
+          if (data.room) {
+            setRoom(data.room);
+          }
+        } else {
+          console.error('Received item:manually_ended event with missing item data:', data);
+          // Refresh to ensure state consistency
+          fetchData();
         }
         break;
     }
-  }, [currentItem]);
+  }, [currentItem, fetchData]);
 
   // Initialize real-time connection
   const { isConnected } = useRealtime({

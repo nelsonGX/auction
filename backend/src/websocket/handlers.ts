@@ -46,7 +46,12 @@ export const emitItemNext = (roomId: string, data: any) => {
 
 export const emitItemBid = (roomId: string, data: any) => {
   try {
-    getWebSocketServer().emitToRoom(roomId, 'item:bid', data);
+    // Format the data properly for the frontend
+    const eventData = {
+      bid: data.bid,
+      item: data.updatedItem
+    };
+    getWebSocketServer().emitToRoom(roomId, 'item:bid', eventData);
     logger.info(`Emitted item:bid event for room ${roomId}`);
   } catch (error) {
     logger.error('Error emitting item:bid event', { error, roomId });

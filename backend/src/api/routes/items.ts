@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { validate } from '../middleware/validation';
-import { roomExists, verifyRoomPassword, RoomRequest } from '../middleware/roomAuth';
+import { roomExists, verifyHostSession, RoomRequest } from '../middleware/roomAuth';
 import itemService from '../../services/item';
 
 const router = Router();
 
-// Add item to room (requires password)
+// Add item to room (requires host authentication)
 router.post(
   '/:roomId/items',
   validate([
@@ -16,7 +16,7 @@ router.post(
     body('timeoutSecs').isInt({ min: 5 }).withMessage('Timeout must be at least 5 seconds'),
   ]),
   roomExists,
-  verifyRoomPassword,
+  verifyHostSession,
   async (req: RoomRequest, res, next) => {
     try {
       const itemData = {
@@ -53,7 +53,7 @@ router.get(
   }
 );
 
-// Update item (requires password)
+// Update item (requires host authentication)
 router.put(
   '/:roomId/items/:itemId',
   validate([
@@ -61,7 +61,7 @@ router.put(
     param('itemId').isUUID().withMessage('Valid item ID is required'),
   ]),
   roomExists,
-  verifyRoomPassword,
+  verifyHostSession,
   async (req, res, next) => {
     try {
       const updateData = {
@@ -80,7 +80,7 @@ router.put(
   }
 );
 
-// Remove item (requires password)
+// Remove item (requires host authentication)
 router.delete(
   '/:roomId/items/:itemId',
   validate([
@@ -88,7 +88,7 @@ router.delete(
     param('itemId').isUUID().withMessage('Valid item ID is required'),
   ]),
   roomExists,
-  verifyRoomPassword,
+  verifyHostSession,
   async (req, res, next) => {
     try {
       const result = await itemService.removeItem(req.params.itemId);
@@ -99,7 +99,7 @@ router.delete(
   }
 );
 
-// Change item position in sequence (requires password)
+// Change item position in sequence (requires host authentication)
 router.post(
   '/:roomId/items/:itemId/position',
   validate([
@@ -108,7 +108,7 @@ router.post(
     body('position').isInt({ min: 1 }).withMessage('Position must be a positive integer'),
   ]),
   roomExists,
-  verifyRoomPassword,
+  verifyHostSession,
   async (req, res, next) => {
     try {
       const item = await itemService.changeItemPosition(

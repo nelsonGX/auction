@@ -82,12 +82,14 @@ export function getApiUrl(endpoint: string): string {
 export function getWsFullUrl(path: string, params: Record<string, string> = {}): string {
   const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = getWsUrl();
-  const wsPath = path.startsWith('/') ? path : `/${path}`;
   
-  // Add query parameters if any
-  const queryString = Object.keys(params).length > 0 
-    ? `?${new URLSearchParams(params).toString()}`
-    : '';
+  // Socket.io expects a specific structure for the WebSocket URL
+  const wsPath = '/ws'; // This is the Socket.io path configured on the server
+  
+  // Add query parameters including roomId extracted from path
+  const roomId = path.split('/').pop();
+  const allParams = { ...params, roomId };
+  const queryString = `?${new URLSearchParams(allParams).toString()}`;
   
   return `${protocol}//${host}${wsPath}${queryString}`;
 }

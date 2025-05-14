@@ -51,16 +51,22 @@ export interface Bid {
   roomId: string;
 }
 
-// WebSocket event types
-export type WebSocketEvent =
-  | { type: 'room:start' }
-  | { type: 'room:end' }
-  | { type: 'participant:join', participant: Participant }
-  | { type: 'item:next', item: AuctionItem }
-  | { type: 'item:bid', bid: Bid }
-  | { type: 'item:timeout:warning', secondsLeft: number }
-  | { type: 'item:sold', item: AuctionItem, winner: Participant }
-  | { type: 'item:manually_ended', item: AuctionItem, winner: Participant | null };
+// WebSocket event types - payload for each event type
+export interface WebSocketEvent {
+  // Common properties across events
+  room?: AuctionRoom;
+  participant?: Participant;
+  item?: AuctionItem;
+  currentItem?: AuctionItem;
+  currentItemId?: string;
+  items?: AuctionItem[];
+  bid?: Bid;
+  secondsLeft?: number;
+  winner?: Participant | null;
+  
+  // For flexibility and future properties
+  [key: string]: any;
+}
 
 // API response types
 export interface CreateRoomResponse {

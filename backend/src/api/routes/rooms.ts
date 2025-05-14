@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { validate } from '../middleware/validation';
-import { roomExists, verifyRoomPassword, RoomRequest } from '../middleware/roomAuth';
+import { roomExists, verifyRoomPassword, verifyHostSession, RoomRequest } from '../middleware/roomAuth';
 import roomService from '../../services/room';
+import authCache from '../../utils/authCache';
 
 const router = Router();
 
@@ -48,19 +49,37 @@ router.get(
   }
 );
 
-// Authenticate with room password
+// Authenticate with room password and set up session
 router.post(
   '/:roomId/auth',
   validate([
     param('roomId').isUUID().withMessage('Valid room ID is required'),
     body('password').notEmpty().withMessage('Password is required'),
   ]),
-  async (req, res, next) => {
+  roomExists,
+  async (req: RoomRequest, res, next) => {
     try {
+      // Authenticate room
       const result = await roomService.authenticateRoom(
         req.params.roomId,
         req.body.password
       );
+      
+      // Set up session
+      if (!req.session.hostRooms) {
+        req.session.hostRooms = {};
+      }
+      
+      if (result.id) {
+        // Save to session
+        req.session.hostRooms[req.params.roomId] = result.id;
+        req.session.isAuthenticated = true;
+        await req.session.save();
+        
+        // Also save to memory cache
+        authCache.setHostAuth(req.params.roomId, result.id);
+      }
+      
       res.json(result);
     } catch (error) {
       next(error);
@@ -68,14 +87,14 @@ router.post(
   }
 );
 
-// Update room settings (requires password)
+// Update room settings (requires host authentication)
 router.put(
   '/:roomId',
   validate([
     param('roomId').isUUID().withMessage('Valid room ID is required'),
   ]),
   roomExists,
-  verifyRoomPassword,
+  verifyHostSession,
   async (req: RoomRequest, res, next) => {
     try {
       // Extract only allowed fields
@@ -98,18 +117,49 @@ router.put(
   }
 );
 
-// Delete room (requires password)
+// Delete room (requires host authentication)
 router.delete(
   '/:roomId',
   validate([
     param('roomId').isUUID().withMessage('Valid room ID is required'),
   ]),
   roomExists,
-  verifyRoomPassword,
+  verifyHostSession,
   async (req, res, next) => {
     try {
       const result = await roomService.deleteRoom(req.params.roomId);
+      
+      // Clear session data for this room
+      if (req.session.hostRooms && req.session.hostRooms[req.params.roomId]) {
+        delete req.session.hostRooms[req.params.roomId];
+        await req.session.save();
+      }
+      
       res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Check if user is authenticated as host for a room
+router.get(
+  '/:roomId/host-auth',
+  validate([
+    param('roomId').isUUID().withMessage('Valid room ID is required'),
+  ]),
+  async (req: RoomRequest, res, next) => {
+    try {
+      // Check if user has an active session with host privileges for this room
+      const isAuthenticated = !!(
+        req.session.hostRooms && 
+        req.session.hostRooms[req.params.roomId]
+      );
+      
+      res.json({ 
+        authenticated: isAuthenticated,
+        hostId: isAuthenticated ? req.session.hostRooms[req.params.roomId] : null
+      });
     } catch (error) {
       next(error);
     }

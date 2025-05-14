@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { AuctionItem } from '../../lib/types';
-import { itemApi } from '../../lib/api';
+import { itemApi, roomApi } from '../../lib/api';
 
 interface ItemQueueProps {
   roomId: string;
@@ -35,6 +35,21 @@ export default function ItemQueue({ roomId, items, onItemsReordered }: ItemQueue
     e.preventDefault();
   };
 
+  // Function to try reconnecting session if needed
+  const attemptSessionReconnect = async () => {
+    try {
+      const storedAuth = localStorage.getItem(`host_auth_${roomId}`);
+      if (storedAuth) {
+        const { id } = JSON.parse(storedAuth);
+        await roomApi.reconnectSession(roomId, id).catch(err => {
+          console.warn('Session reconnect failed:', err);
+        });
+      }
+    } catch (reconnectErr) {
+      console.warn('Error during session reconnection attempt:', reconnectErr);
+    }
+  };
+
   // Handle drop
   const handleDrop = async (e: React.DragEvent, targetItemId: string) => {
     e.preventDefault();
@@ -57,6 +72,9 @@ export default function ItemQueue({ roomId, items, onItemsReordered }: ItemQueue
     setError('');
 
     try {
+      // Try to reconnect session first
+      await attemptSessionReconnect();
+
       // Update the dragged item's position to the target item's position
       await itemApi.updatePosition(roomId, draggingId, targetItem.position);
       
@@ -80,6 +98,9 @@ export default function ItemQueue({ roomId, items, onItemsReordered }: ItemQueue
     setError('');
 
     try {
+      // Try to reconnect session first
+      await attemptSessionReconnect();
+      
       await itemApi.deleteItem(roomId, itemId);
       onItemsReordered();
     } catch (err: any) {

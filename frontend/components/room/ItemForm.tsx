@@ -30,6 +30,19 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
     setError('');
 
     try {
+      // Try to use session reconnection first (in case session was lost)
+      try {
+        const storedAuth = localStorage.getItem(`host_auth_${roomId}`);
+        if (storedAuth) {
+          const { id } = JSON.parse(storedAuth);
+          await roomApi.reconnectSession(roomId, id).catch(err => {
+            console.warn('Session reconnect failed:', err);
+          });
+        }
+      } catch (reconnectErr) {
+        console.warn('Error during session reconnection attempt:', reconnectErr);
+      }
+      
       // Use API client to add item
       await itemApi.createItem(roomId, {
         name: formData.name,

@@ -5,6 +5,7 @@ export interface PlaceBidData {
   amount: number;
   participantId: string;
   roomId: string;
+  itemId?: string;
 }
 
 class BidService {
@@ -47,7 +48,7 @@ class BidService {
 
   // Place a bid on the current item
   async placeBid(data: PlaceBidData) {
-    const { amount, participantId, roomId } = data;
+    const { amount, participantId, roomId, itemId } = data;
 
     // Check if room exists and is active
     const room = await prisma.auctionRoom.findUnique({
@@ -65,8 +66,34 @@ class BidService {
       throw new BadRequestError('Auction is not active');
     }
 
-    if (!room.currentItem) {
+    // If itemId is provided, use it; otherwise use the room's current item
+    let currentItem;
+    if (itemId) {
+      // Check if the provided itemId matches the room's current item
+      if (room.currentItemId !== itemId) {
+        throw new BadRequestError('The specified item is not the current active item');
+      }
+      currentItem = await prisma.auctionItem.findUnique({
+        where: { id: itemId },
+      });
+    } else if (room.currentItem) {
+      currentItem = room.currentItem;
+    } else {
       throw new BadRequestError('No active item in the auction');
+    }
+
+    if (!currentItem) {
+      throw new BadRequestError('Item not found or not active');
+    }
+
+    // Check if the item is active
+    if (!currentItem.isActive) {
+      throw new BadRequestError('Item is not currently active for bidding');
+    }
+
+    // Check if the item has already been sold
+    if (currentItem.isSold || currentItem.endedManually) {
+      throw new BadRequestError('This item auction has already ended');
     }
 
     // Check if participant exists
@@ -77,9 +104,6 @@ class BidService {
     if (!participant) {
       throw new NotFoundError('Participant not found');
     }
-
-    // Get current item
-    const currentItem = room.currentItem;
 
     // Check if the bid amount is higher than the current price
     if (amount <= currentItem.currentPrice) {

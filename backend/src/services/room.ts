@@ -146,6 +146,13 @@ class RoomService {
   async authenticateRoom(roomId: string, password: string) {
     const room = await prisma.auctionRoom.findUnique({
       where: { id: roomId },
+      include: {
+        participants: {
+          where: {
+            isHost: true
+          }
+        }
+      }
     });
 
     if (!room) {
@@ -158,11 +165,16 @@ class RoomService {
     if (!isPasswordValid) {
       throw new BadRequestError('Invalid password');
     }
+    
+    // Get host participant ID
+    const hostParticipant = room.participants[0];
+    const hostId = hostParticipant?.id;
 
-    // Return room without password
-    const { password: _, ...roomWithoutPassword } = room;
+    // Return room without password and host ID
+    const { password: _, participants: __, ...roomWithoutPassword } = room;
     return {
       authenticated: true,
+      id: hostId, // Include host participant ID for session
       room: roomWithoutPassword,
     };
   }

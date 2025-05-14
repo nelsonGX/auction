@@ -84,8 +84,10 @@ export default function BidControls({
     setError('');
   };
 
+  console.log('Rendering BidControls with:', { roomId, itemId, participantId, currentPrice, minPrice, disabled });
+
   return (
-    <div className="w-full bg-white rounded-lg shadow-md p-6">
+    <div className="w-full bg-white rounded-lg shadow-md p-6 border-2 border-red-500">
       <h3 className="text-xl font-semibold mb-4">Place Your Bid</h3>
       
       {error && (
