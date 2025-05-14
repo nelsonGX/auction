@@ -13,7 +13,9 @@ router.post(
   '/:roomId/join',
   validate([
     param('roomId').isUUID().withMessage('Valid room ID is required'),
-    body('username').notEmpty().withMessage('Username is required'),
+    body('username')
+      .notEmpty().withMessage('Username is required')
+      .isLength({ min: 1, max: 30 }).withMessage('Username must be between 1 and 30 characters'),
   ]),
   async (req, res, next) => {
     try {
@@ -44,7 +46,9 @@ router.post(
     param('roomId').isUUID().withMessage('Valid room ID is required'),
     body('participantId').isUUID().withMessage('Valid participant ID is required'),
     body('itemId').isUUID().withMessage('Valid item ID is required'),
-    body('amount').isFloat({ min: 0.01 }).withMessage('Valid bid amount is required'),
+    body('amount')
+      .isFloat({ min: 0.01, max: 1000000000000 }) // Max $1 trillion
+      .withMessage('Bid amount must be between $0.01 and $1 trillion'),
   ]),
   roomExists,
   async (req: RoomRequest, res, next) => {

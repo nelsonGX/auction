@@ -19,6 +19,15 @@ class BidService {
     if (!room) {
       throw new NotFoundError('Auction room not found');
     }
+    
+    // Validate username length
+    if (!username || username.length === 0) {
+      throw new BadRequestError('Username is required');
+    }
+    
+    if (username.length > 30) {
+      throw new BadRequestError('Username must be at most 30 characters');
+    }
 
     // Check if username is already taken in this room
     const existingParticipant = await prisma.participant.findUnique({
@@ -113,6 +122,12 @@ class BidService {
     // Check if bid is at least the minimum price
     if (amount < currentItem.minPrice) {
       throw new BadRequestError('Bid amount must be at least the minimum price');
+    }
+    
+    // Check if bid is within maximum limit ($1 trillion)
+    const MAX_BID_AMOUNT = 1_000_000_000_000; // $1 trillion
+    if (amount > MAX_BID_AMOUNT) {
+      throw new BadRequestError(`Bid amount cannot exceed $${MAX_BID_AMOUNT.toLocaleString()}`);
     }
 
     // Create the bid in a transaction
