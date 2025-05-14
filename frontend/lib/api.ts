@@ -116,12 +116,12 @@ export const roomApi = {
   },
 
   authenticate: (roomId: string, password: string): Promise<{ authenticated: boolean, id: string, room: AuctionRoom }> => {
-    console.log('API: authenticate called with roomId:', roomId);
+    
     return fetchApi<{ authenticated: boolean, id: string, room: AuctionRoom }>(`/rooms/${roomId}/auth`, {
       method: 'POST',
       body: JSON.stringify({ password }),
     }).then(result => {
-      console.log('API: authenticate response:', result);
+      
       return result;
     }).catch(error => {
       console.error('API: authenticate error:', error);

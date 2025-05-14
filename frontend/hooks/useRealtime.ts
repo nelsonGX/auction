@@ -127,7 +127,7 @@ export default function useRealtime({
     // Create a new socket if none exists
     try {
       const baseUrl = getApiBaseUrl();
-      console.log('Creating new Socket.IO connection:', baseUrl, cacheKey);
+      
       
       const socket = io(baseUrl, {
         path: '/ws',

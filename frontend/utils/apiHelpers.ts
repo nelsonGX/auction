@@ -69,7 +69,7 @@ export function getApiUrl(endpoint: string): string {
   const baseUrl = getApiBaseUrl();
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const fullUrl = `${baseUrl}/api${path}`;
-  console.log('ApiHelpers: getApiUrl called for endpoint:', endpoint, 'returning:', fullUrl);
+  
   return fullUrl;
 }
 
@@ -87,7 +87,7 @@ export function getWsFullUrl(path: string, params: Record<string, string> = {}):
   const wsPath = '/ws'; // This is the Socket.io path configured on the server
   
   // Add query parameters including roomId extracted from path
-  const roomId = path.split('/').pop();
+  const roomId = path.split('/').pop() || '';
   const allParams = { ...params, roomId };
   const queryString = `?${new URLSearchParams(allParams).toString()}`;
   

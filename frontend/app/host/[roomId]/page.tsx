@@ -15,6 +15,7 @@ import UpcomingItems from '@/components/auction/UpcomingItems';
 import CompletedItems from '@/components/auction/CompletedItems';
 import AuctionSummary from '@/components/auction/AuctionSummary';
 import useAuction from '@/hooks/useAuction';
+import Image from 'next/image';
 
 export default function HostDashboard() {
   const params = useParams<{ roomId: string }>()
@@ -23,25 +24,15 @@ export default function HostDashboard() {
   const [participantId, setParticipantId] = useState<string | null>(null);
   const router = useRouter();
   
-  // Check for authentication (using both session and localStorage)
-  useEffect(() => {
-    console.log('HostDashboard: Component mounted, roomId:', roomId);
-    console.log('HostDashboard: Current isAuthenticated state:', isAuthenticated);
-    
-    // First, try to check session authentication
+  useEffect(() => {    
     async function checkSessionAuth() {
       try {
-        // Try to check session-based auth first
-        
         const authResponse = await roomApi.checkHostAuth(roomId);
-        console.log('HostDashboard: Session auth response:', authResponse);
         
         if (authResponse.authenticated && authResponse.hostId) {
-          console.log('HostDashboard: Setting authenticated state from session with id:', authResponse.hostId);
           setIsAuthenticated(true);
           setParticipantId(authResponse.hostId);
           
-          // Update localStorage for backup
           const authState = {
             authenticated: true,
             id: authResponse.hostId,
@@ -58,41 +49,31 @@ export default function HostDashboard() {
       }
     }
     
-    // Fallback to localStorage if session auth fails
     async function checkLocalStorage() {
       try {
         
         const key = `host_auth_${roomId}`;
-        console.log('HostDashboard: Looking for localStorage key:', key);
+        
         
         const storedAuthState = localStorage.getItem(key);
-        console.log('HostDashboard: Stored auth state:', storedAuthState);
+        
         
         if (storedAuthState) {
           try {
             const parsedState = JSON.parse(storedAuthState);
-            console.log('HostDashboard: Parsed auth state:', parsedState);
-            
             const { authenticated, id } = parsedState;
+
             if (authenticated && id) {
-              console.log('HostDashboard: Found valid localStorage auth with id:', id);
-              
               try {
                 try {
-                  const sessionResult = await roomApi.reconnectSession(roomId, id);
-                  console.log('HostDashboard: Session reconnection attempt result:', sessionResult);
-                  
-                  if (sessionResult.success) {
-                    
-                  }
+                  await roomApi.reconnectSession(roomId, id);
                 } catch (reconnectErr) {
                   console.warn('HostDashboard: Error in session reconnection attempt:', reconnectErr);
                 }
               } catch (sessionEstablishErr) {
                 console.warn('HostDashboard: Failed to establish session, continuing with localStorage:', sessionEstablishErr);
               }
-              
-              console.log('HostDashboard: Setting authenticated state from localStorage with id:', id);
+            
               setIsAuthenticated(true);
               setParticipantId(id);
               return true;
@@ -112,7 +93,6 @@ export default function HostDashboard() {
       }
     }
     
-    // Check auth in sequence: first session, then localStorage
     async function checkAuthentication() {
       const sessionAuth = await checkSessionAuth();
       if (!sessionAuth) {
@@ -123,55 +103,42 @@ export default function HostDashboard() {
     checkAuthentication();
   }, [roomId, isAuthenticated]);
 
-  // Get auction state with host controls
   const auction = useAuction({
     roomId,
     participantId: participantId || undefined,
     isHost: true,
   });
 
-  // Handle host actions
   const handleAction = (action: 'start' | 'next' | 'end-current' | 'end') => {
     console.log(`Host action triggered: ${action}`);
     
-    // We'll update the UI optimistically here rather than wait for WebSocket events
     switch (action) {
       case 'start':
-        // Optimistically update UI
         if (auction.room && !auction.room.isActive) {
-          // const updatedRoom = { ...auction.room, isActive: true };
-          
-          // Get first item
           const firstItem = auction.items.find(item => item.position === 1);
           if (firstItem) {
-            // Temporary UI update until WebSocket confirms
             auction.refreshData();
           }
         }
         break;
       case 'next':
-        // Refresh data to show the changes
         auction.refreshData();
         break;
       case 'end-current':
-        // Refresh data to show the changes
         auction.refreshData();
         break;
       case 'end':
-        // Refresh data to show the changes
         auction.refreshData();
         break;
     }
   };
 
-  // Handle item creation
   const handleItemAdded = () => {
     auction.refreshData();
   };
 
   if (!isAuthenticated) {
-    const authCallback = (hostId: string) => {
-      console.log('HostDashboard: Authentication callback wrapper called with hostId:', hostId);
+    const authCallback = () => {
       router.push(`/host/${roomId}`);
     };
     
@@ -193,9 +160,7 @@ export default function HostDashboard() {
           <div className="flex flex-wrap items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-zinc-100 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-3 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 005 10a.75.75 0 01-.75-.75V9a.75.75 0 01.75-.75h.5a.75.75 0 01.75.75v.25a4.5 4.5 0 004.5 4.5 4.5 4.5 0 004.5-4.5V9a.75.75 0 01.75-.75h.5a.75.75 0 01.75.75v.25A5.989 5.989 0 0114 10a5 5 0 00-4 4z" clipRule="evenodd" />
-                </svg>
+                <Image src={'/favicon.ico'} alt="Logo" width={32} height={32} className="mr-2" />
                 Host Dashboard
               </h1>
               <div className="mt-2 flex items-center">

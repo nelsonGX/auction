@@ -31,7 +31,7 @@ class BidService {
     });
 
     if (existingParticipant) {
-      return existingParticipant; // Return existing participant
+      throw new BadRequestError('Username is already taken in this room');
     }
 
     // Create new participant

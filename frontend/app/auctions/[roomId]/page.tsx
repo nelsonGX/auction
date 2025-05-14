@@ -19,7 +19,6 @@ export default function AuctionRoom() {
   const [participantId, setParticipantId] = useState<string | null>(null);
   const [username, setUsername] = useState<string>('');
   
-  // Check for stored participant state on component mount
   useEffect(() => {
     const storedParticipant = localStorage.getItem(`participant_${roomId}`);
     if (storedParticipant) {
@@ -35,17 +34,14 @@ export default function AuctionRoom() {
     }
   }, [roomId]);
 
-  // Get auction state
   const auction = useAuction({
     roomId,
     participantId: participantId || undefined,
   });
 
-  // Handle joining the auction
   const handleJoin = (id: string, name: string) => {
     console.log(`Joining auction with participantId: ${id}, username: ${name}`);
     
-    // Validate the participantId
     if (!id) {
       console.error("Error: Received empty participantId");
       alert("Error: Could not join auction (empty participant ID)");
@@ -56,7 +52,6 @@ export default function AuctionRoom() {
     setUsername(name);
     setIsJoined(true);
     
-    // Store participant info in localStorage with better formatting
     const participantData = JSON.stringify({
       id,
       name,
@@ -66,7 +61,6 @@ export default function AuctionRoom() {
       localStorage.setItem(`participant_${roomId}`, participantData);
       console.log(`Stored in localStorage: ${participantData}`);
       
-      // Verify storage
       const verifyData = localStorage.getItem(`participant_${roomId}`);
       console.log(`Verification from localStorage: ${verifyData}`);
     } catch (err) {
@@ -74,9 +68,7 @@ export default function AuctionRoom() {
     }
   };
 
-  // Handle bid placed
   const handleBidPlaced = () => {
-    // The state will be updated via websocket, but we can also refresh data to be safe
     auction.refreshData();
   };
 
@@ -90,7 +82,6 @@ export default function AuctionRoom() {
     );
   }
 
-  // Determine if bidding is allowed - less strict check to fix bidding
   const canBid = 
     auction.room?.isActive && 
     auction.currentItem && 

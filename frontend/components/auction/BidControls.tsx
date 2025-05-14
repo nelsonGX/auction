@@ -85,7 +85,7 @@ export default function BidControls({
     setError('');
   };
 
-  console.log('Rendering BidControls with:', { roomId, itemId, participantId, currentPrice, minPrice, disabled });
+  
 
   return (
     <div className="w-full bg-zinc-800 rounded-lg shadow-lg p-6 border border-blue-600/50 animate-fade-in">

@@ -50,9 +50,9 @@ app.use(session({
 // Add middleware to log session on each request (development only)
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    console.log('Session ID:', req.session.id);
-    console.log('Session Data:', req.session);
-    console.log('Cookies:', req.headers.cookie);
+    
+    
+    
     next();
   });
 }

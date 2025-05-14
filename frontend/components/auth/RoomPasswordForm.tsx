@@ -28,7 +28,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
       try {        
         // First check for session-based auth
         const sessionCheck = await roomApi.checkHostAuth(roomId);
-        console.log('RoomPasswordForm: Session auth check:', sessionCheck);
+        
         
         if (sessionCheck.authenticated && sessionCheck.hostId) {
           authProcessedRef.current = true;
@@ -48,7 +48,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
         if (storedAuth) {
           try {
             const parsedAuth = JSON.parse(storedAuth);
-            console.log('RoomPasswordForm: Found localStorage auth:', parsedAuth);
+            
             
             if (parsedAuth.authenticated && parsedAuth.id) {
               // Try to establish a session using the localStorage credentials
@@ -93,7 +93,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
 
     // Check if roomId is valid
     if (!roomId || roomId === 'undefined') {
-      console.log('RoomPasswordForm: Invalid roomId:', roomId);
+      
       setError('Invalid room ID. Please check the URL and try again.');
       setLoading(false);
       return;
@@ -103,7 +103,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
       
       // Use API client to authenticate room password (this will set the session cookie)
       const result = await roomApi.authenticate(roomId, password);
-      console.log('RoomPasswordForm: Authentication result:', result);
+      
       
       if (!result.authenticated) {
         throw new Error('Invalid password');
@@ -112,10 +112,10 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
       // Extract room's host ID from result
       const hostId = result.id || (result.room && result.room.hostId);
       
-      console.log('RoomPasswordForm: Extracted hostId:', hostId);
-      console.log('RoomPasswordForm: Result contains id?', !!result.id);
-      console.log('RoomPasswordForm: Room contains hostId?', !!(result.room && result.room.hostId));
-      console.log('RoomPasswordForm: onAuthentication exists?', !!onAuthentication);
+      
+      
+      
+      
       
       // Force authentication with a generated ID if none is available
       // Ensure finalHostId is always a string
@@ -136,7 +136,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
       // Verify session was established by checking with the server
       try {
         const sessionCheck = await roomApi.checkHostAuth(roomId);
-        console.log('RoomPasswordForm: Session verification:', sessionCheck);
+        
         
         if (!sessionCheck.authenticated) {
           console.warn('RoomPasswordForm: Session not established properly, but continuing with localStorage');
@@ -147,7 +147,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
       
       authProcessedRef.current = true;
       if (onAuthentication) {
-        console.log('RoomPasswordForm: Calling onAuthentication callback with hostId:', finalHostId);
+        
         onAuthentication(finalHostId);
         setTimeout(() => window.location.reload(), 100);
       } else {
