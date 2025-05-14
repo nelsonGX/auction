@@ -114,25 +114,10 @@ export default function HostDashboard() {
   const handleAction = (action: 'start' | 'next' | 'end-current' | 'end') => {
     console.log(`Host action triggered: ${action}`);
     
-    switch (action) {
-      case 'start':
-        if (auction.room && !auction.room.isActive) {
-          const firstItem = auction.items.find(item => item.position === 1);
-          if (firstItem) {
-            auction.refreshData();
-          }
-        }
-        break;
-      case 'next':
-        auction.refreshData();
-        break;
-      case 'end-current':
-        auction.refreshData();
-        break;
-      case 'end':
-        auction.refreshData();
-        break;
-    }
+    // For all actions, refresh data after a short delay to ensure WebSocket events are processed
+    setTimeout(() => {
+      auction.refreshData();
+    }, 500);
   };
 
   const handleItemAdded = () => {

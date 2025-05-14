@@ -25,7 +25,7 @@ export default function BidControls({
   const [loading, setLoading] = useState<boolean>(false);
 
   // Calculate minimum bid (current price + 1 or minimum price if no bids yet)
-  const minimumBid = currentPrice > 0 ? currentPrice + 1 : minPrice;
+  const minimumBid = currentPrice > 0 ? currentPrice + 1 : (minPrice || 0);
 
   const handleBidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBidAmount(e.target.value);
@@ -47,8 +47,9 @@ export default function BidControls({
       return;
     }
 
-    if (amount < minimumBid) {
-      setError(`Bid must be at least ${minimumBid}`);
+    const minBidRequired = minimumBid || 0;
+    if (amount < minBidRequired) {
+      setError(`Bid must be at least ${minBidRequired}`);
       return;
     }
 
@@ -81,7 +82,8 @@ export default function BidControls({
   const quickBidOptions = [1, 5, 10, 50, 100];
 
   const handleQuickBid = (increment: number) => {
-    setBidAmount((minimumBid + increment).toString());
+    const base = minimumBid || 0;
+    setBidAmount((base + increment).toString());
     setError('');
   };
 
@@ -100,7 +102,7 @@ export default function BidControls({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="mb-4">
           <label htmlFor="bidAmount" className="block text-sm font-medium text-zinc-300 mb-2">
-            Your Bid <span className="text-blue-400 font-semibold">(Minimum: {formatCurrency(minimumBid)})</span>
+            Your Bid <span className="text-blue-400 font-semibold">(Minimum: {formatCurrency(minimumBid || 0)})</span>
           </label>
           <div className="relative">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
@@ -111,11 +113,11 @@ export default function BidControls({
               id="bidAmount"
               value={bidAmount}
               onChange={handleBidChange}
-              min={minimumBid}
+              min={minimumBid || 0}
               step="0.01"
               className="w-full pl-8 pr-3 py-3 bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg 
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-              placeholder={minimumBid.toString()}
+              placeholder={minimumBid !== undefined ? minimumBid.toString() : '0'}
               disabled={disabled || loading}
               required
             />

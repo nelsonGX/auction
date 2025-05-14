@@ -130,6 +130,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
         break;
         
       case 'item:next':
+        console.log('Received item:next event with data:', data);
         
         if (data.item) {
           setCurrentItem(data.item);
@@ -142,6 +143,11 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
           // If the room data is included, update room as well
           if (data.room) {
             setRoom(data.room);
+            
+            // If the room includes items, update the items state
+            if (data.room.items && Array.isArray(data.room.items)) {
+              setItems(data.room.items);
+            }
           } else {
             // Update room's currentItemId
             setRoom(prev => {
@@ -157,6 +163,21 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
                 item.id === data.item?.id ? { ...item, isActive: true } : item
               )
             );
+          }
+        } else if (data.room && data.room.currentItem) {
+          // If data contains room with currentItem but no separate item property
+          setCurrentItem(data.room.currentItem);
+          setBids([]);
+          
+          if (data.room.currentItem.timeoutSecs) {
+            setTimeRemaining(data.room.currentItem.timeoutSecs);
+          }
+          
+          setRoom(data.room);
+          
+          // If the room includes items, update the items state
+          if (data.room.items && Array.isArray(data.room.items)) {
+            setItems(data.room.items);
           }
         } else {
           console.error('Received item:next event with missing item data:', data);
