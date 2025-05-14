@@ -10,6 +10,7 @@ interface AuctionItem {
   timeoutSecs: number;
   isActive: boolean;
   isSold: boolean;
+  endedManually?: boolean; // Add this to track if item was ended manually
 }
 
 interface CurrentItemProps {
@@ -74,6 +75,11 @@ export default function CurrentItem({ item, timeRemaining }: CurrentItemProps) {
             Sold
           </span>
         )}
+        {!item.isSold && !item.isActive && item.endedManually && (
+          <span className="ml-auto bg-yellow-900/30 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium border border-yellow-800 animate-pulse">
+            Ended - Waiting for Next Item
+          </span>
+        )}
         {!item.isSold && item.isActive && (
           <span className="ml-auto bg-blue-900/30 text-blue-400 px-2 py-1 rounded-full text-xs font-medium border border-blue-800 animate-pulse">
             Active
@@ -95,11 +101,7 @@ export default function CurrentItem({ item, timeRemaining }: CurrentItemProps) {
             />
           </div>
         ) : (
-          <div className="w-full h-48 mb-5 bg-zinc-900 rounded-lg flex items-center justify-center border border-zinc-700">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
+          null
         )}
         
         {/* Item Details */}
@@ -141,13 +143,21 @@ export default function CurrentItem({ item, timeRemaining }: CurrentItemProps) {
               <p className={`text-2xl font-semibold ${
                 timeRemaining && timeRemaining < 30 
                   ? 'text-red-400 animate-pulse' 
+                  : !item.isActive && item.endedManually 
+                  ? 'text-yellow-400'
                   : 'text-zinc-100'
               }`}>
-                {timeRemaining !== null 
+                {!item.isActive && item.endedManually
+                  ? 'Auction ended'
+                  : timeRemaining !== null 
                   ? formatTimeRemaining(timeRemaining)
                   : 'Auction in progress'}
               </p>
-              {timeRemaining && timeRemaining < 30 && (
+              {!item.isActive && item.endedManually ? (
+                <p className="text-xs mt-1 text-yellow-400 animate-pulse">
+                  Waiting for host to continue...
+                </p>
+              ) : timeRemaining && timeRemaining < 30 && (
                 <p className="text-xs mt-1 text-red-400">
                   Ending soon!
                 </p>

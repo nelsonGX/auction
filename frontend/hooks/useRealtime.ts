@@ -117,7 +117,7 @@ export default function useRealtime({
       
       // If socket is disconnected, reconnect it
       if (!socket.connected) {
-        console.log('Reconnecting existing cached socket');
+        
         socket.connect();
       }
       

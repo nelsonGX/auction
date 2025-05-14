@@ -27,8 +27,9 @@ export default function ParticipantForm({ roomId, onJoin }: ParticipantFormProps
       // Use API client to join room as participant
       const data = await participantApi.join(roomId, username);
       onJoin(data.participantId, username);
-    } catch (err: any) {
-      setError(err.message || 'Failed to join. Please try again.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to join. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

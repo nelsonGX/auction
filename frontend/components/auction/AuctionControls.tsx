@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { roomApi } from '../../lib/api';
 
 interface AuctionControlsProps {
@@ -7,6 +7,7 @@ interface AuctionControlsProps {
   hasCurrentItem: boolean;
   hasNextItem: boolean;
   onAction: (action: 'start' | 'next' | 'end-current' | 'end') => void;
+  currentItemEnded?: boolean; // Optional prop to check if item is ended but not moved to next
 }
 
 export default function AuctionControls({
@@ -15,9 +16,16 @@ export default function AuctionControls({
   hasCurrentItem,
   hasNextItem,
   onAction,
+  currentItemEnded = false, // Default to false if not provided
 }: AuctionControlsProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [itemEndedLocally, setItemEndedLocally] = useState(currentItemEnded);
+
+  // Update local state when prop changes
+  useEffect(() => {
+    setItemEndedLocally(currentItemEnded);
+  }, [currentItemEnded]);
 
   const attemptSessionReconnect = async () => {
     try {
@@ -48,9 +56,11 @@ export default function AuctionControls({
           break;
         case 'next':
           await roomApi.nextItem(roomId);
+          setItemEndedLocally(false); // Reset after moving to next item
           break;
         case 'end-current':
           await roomApi.endCurrentItem(roomId);
+          setItemEndedLocally(true); // Set when current item is ended
           break;
         case 'end':
           await roomApi.endAuction(roomId);
@@ -59,7 +69,7 @@ export default function AuctionControls({
           throw new Error('Invalid action');
       }
       
-      console.log('Action request completed successfully');
+      
 
       onAction(action);
       
@@ -70,7 +80,7 @@ export default function AuctionControls({
       if (err instanceof Error && (err.message === 'Failed to perform action' || 
           err.message.includes('authentication') || 
           err.message.includes('Unauthorized'))) {
-        console.log('Possible auth error but action might have succeeded, suppressing error message');
+        
       } else {
         const errorMessage = err instanceof Error ? err.message : 'Failed to perform action. Please try again.';
         setError(errorMessage);
@@ -134,19 +144,21 @@ export default function AuctionControls({
         {isActive && hasNextItem && (
           <button
             onClick={() => handleAction('next')}
-            disabled={loading || (hasCurrentItem && false)} // Disable if current item is active
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-500 
+            disabled={loading || (hasCurrentItem && !itemEndedLocally)} // Only enable after ending current item
+            className={`w-full ${itemEndedLocally ? 'bg-blue-600 animate-pulse' : 'bg-blue-600/50'} text-white py-3 px-4 rounded-lg hover:bg-blue-500 
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
             focus:ring-offset-zinc-800 disabled:opacity-50 font-medium transition-all duration-200
-            transform hover:translate-y-[-2px] active:translate-y-[1px] animate-scale"
+            transform hover:translate-y-[-2px] active:translate-y-[1px] animate-scale`}
           >
             {loading ? (
               <span className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 Moving to Next Item...
               </span>
-            ) : (
+            ) : itemEndedLocally ? (
               'Move to Next Item'
+            ) : (
+              'End Current Item First'
             )}
           </button>
         )}

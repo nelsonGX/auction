@@ -32,7 +32,7 @@ export default function HostDashboard() {
     async function checkSessionAuth() {
       try {
         // Try to check session-based auth first
-        console.log('HostDashboard: Checking session-based auth');
+        
         const authResponse = await roomApi.checkHostAuth(roomId);
         console.log('HostDashboard: Session auth response:', authResponse);
         
@@ -58,57 +58,10 @@ export default function HostDashboard() {
       }
     }
     
-  // Handle successful authentication
-  const handleAuthentication = async (hostId: string) => {
-    console.log('HostDashboard: handleAuthentication called with hostId:', hostId);
-    
-    try {
-      // Store auth state in localStorage as backup
-      const authState = {
-        authenticated: true,
-        id: hostId,
-      };
-      console.log('HostDashboard: Setting localStorage with auth state:', authState);
-      
-      // Force synchronous localStorage write and verify
-      localStorage.setItem(`host_auth_${roomId}`, JSON.stringify(authState));
-      const verification = localStorage.getItem(`host_auth_${roomId}`);
-      console.log('HostDashboard: localStorage verification:', verification);
-      
-      if (!verification) {
-        console.error('HostDashboard: localStorage verification failed!');
-      }
-      
-      // Check if session is working (after RoomPasswordForm has set it up)
-      try {
-        const sessionCheck = await roomApi.checkHostAuth(roomId);
-        console.log('HostDashboard: Session check result:', sessionCheck);
-        
-        if (!sessionCheck.authenticated) {
-          console.warn('HostDashboard: Session is not authenticated, but will continue with localStorage');
-        }
-      } catch (sessionErr) {
-        console.error('HostDashboard: Error checking session:', sessionErr);
-      }
-      
-      // Update React state
-      setIsAuthenticated(true);
-      setParticipantId(hostId);
-      
-      console.log('HostDashboard: Authentication complete, state updated');
-    } catch (error) {
-      console.error('HostDashboard: Error in handleAuthentication:', error);
-      
-      // Try to update state anyway
-      setIsAuthenticated(true);
-      setParticipantId(hostId);
-    }
-  };
-
     // Fallback to localStorage if session auth fails
     async function checkLocalStorage() {
       try {
-        console.log('HostDashboard: Checking localStorage for auth state');
+        
         const key = `host_auth_${roomId}`;
         console.log('HostDashboard: Looking for localStorage key:', key);
         
@@ -124,53 +77,31 @@ export default function HostDashboard() {
             if (authenticated && id) {
               console.log('HostDashboard: Found valid localStorage auth with id:', id);
               
-              // First, attempt to establish a session using the credentials
               try {
-                console.log('HostDashboard: Attempting to establish session from localStorage auth');
-                
-                // Get room details to check if we have the password stored or can access via API
-                const room = await roomApi.getRoom(roomId);
-                console.log('HostDashboard: Got room details:', room ? 'success' : 'failed');
-                
-                // Try to establish a session using our localStorage data
                 try {
-                  // This will try to establish a session using the hostId from localStorage
                   const sessionResult = await roomApi.reconnectSession(roomId, id);
                   console.log('HostDashboard: Session reconnection attempt result:', sessionResult);
                   
                   if (sessionResult.success) {
-                    console.log('HostDashboard: Successfully established session');
+                    
                   }
                 } catch (reconnectErr) {
                   console.warn('HostDashboard: Error in session reconnection attempt:', reconnectErr);
-                  // Continue with localStorage auth even if this fails
                 }
               } catch (sessionEstablishErr) {
                 console.warn('HostDashboard: Failed to establish session, continuing with localStorage:', sessionEstablishErr);
               }
               
-              // Set authenticated state regardless of session establishment success
               console.log('HostDashboard: Setting authenticated state from localStorage with id:', id);
               setIsAuthenticated(true);
               setParticipantId(id);
               return true;
             } else {
-              console.log('HostDashboard: Invalid auth state - missing authenticated or id');
+              
             }
           } catch (err) {
             console.error('HostDashboard: Error parsing stored auth state:', err);
             localStorage.removeItem(key);
-          }
-        } else {
-          console.log('HostDashboard: No stored auth state found');
-          
-          // For debugging: force auth if URL has a debug param
-          const url = new URL(window.location.href);
-          if (url.searchParams.has('debug')) {
-            console.log('HostDashboard: Debug mode activated, forcing authentication');
-            const debugHostId = `debug-host-${Date.now()}`;
-            handleAuthentication(debugHostId);
-            return true;
           }
         }
         

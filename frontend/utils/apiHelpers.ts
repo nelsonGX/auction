@@ -9,7 +9,7 @@
  */
 export function getApiBaseUrl(): string {
   // Always return the hardcoded API URL for reliability
-  console.log("ApiHelpers: Forcing use of hardcoded API URL");
+  
   return 'http://172.26.208.1:4000';
   
   // Commented out this code as it's not working reliably

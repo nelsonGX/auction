@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { roomApi } from '../../lib/api';
 
@@ -11,29 +11,28 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [checkingExistingAuth, setCheckingExistingAuth] = useState(true);
+  const authProcessedRef = useRef(false);
   const router = useRouter();
 
   // Get roomId from URL parameters
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
-  
   // Check for existing auth when component mounts
   useEffect(() => {
     async function checkExistingAuth() {
-      if (!roomId) {
+      if (!roomId || authProcessedRef.current) {
         setCheckingExistingAuth(false);
         return;
       }
       
-      try {
-        console.log('RoomPasswordForm: Checking for existing authentication');
-        
+      try {        
         // First check for session-based auth
         const sessionCheck = await roomApi.checkHostAuth(roomId);
         console.log('RoomPasswordForm: Session auth check:', sessionCheck);
         
         if (sessionCheck.authenticated && sessionCheck.hostId) {
-          console.log('RoomPasswordForm: Found existing session, proceeding with authentication');
+          authProcessedRef.current = true;
+          
           if (onAuthentication) {
             onAuthentication(sessionCheck.hostId);
           } else {
@@ -55,11 +54,10 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
               // Try to establish a session using the localStorage credentials
               try {
                 const reconnectResult = await roomApi.reconnectSession(roomId, parsedAuth.id);
-                console.log('RoomPasswordForm: Session reconnection result:', reconnectResult);
-                
                 if (reconnectResult.success) {
                   // Successfully established session from localStorage
-                  console.log('RoomPasswordForm: Successfully established session from localStorage');
+                  authProcessedRef.current = true;
+                  
                   if (onAuthentication) {
                     onAuthentication(parsedAuth.id);
                   } else {
@@ -89,7 +87,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('RoomPasswordForm: handleSubmit called');
+    
     setLoading(true);
     setError('');
 
@@ -102,14 +100,12 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
     }
 
     try {
-      console.log('RoomPasswordForm: Attempting to authenticate with password:', password ? '(password provided)' : '(no password)');
       
       // Use API client to authenticate room password (this will set the session cookie)
       const result = await roomApi.authenticate(roomId, password);
       console.log('RoomPasswordForm: Authentication result:', result);
       
       if (!result.authenticated) {
-        console.log('RoomPasswordForm: Authentication failed');
         throw new Error('Invalid password');
       }
       
@@ -132,7 +128,7 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
           id: finalHostId,
         };
         localStorage.setItem(`host_auth_${roomId}`, JSON.stringify(authState));
-        console.log('RoomPasswordForm: Saved authentication to localStorage');
+        
       } catch (storageErr) {
         console.error('RoomPasswordForm: Error saving to localStorage:', storageErr);
       }
@@ -146,21 +142,18 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
           console.warn('RoomPasswordForm: Session not established properly, but continuing with localStorage');
         }
       } catch (sessionErr) {
-        console.error('RoomPasswordForm: Error verifying session:', sessionErr);
+        console.error('RoomPasswordForm: Session verification error:', sessionErr);
       }
       
-      // Call the authentication callback if provided
+      authProcessedRef.current = true;
       if (onAuthentication) {
         console.log('RoomPasswordForm: Calling onAuthentication callback with hostId:', finalHostId);
         onAuthentication(finalHostId);
+        setTimeout(() => window.location.reload(), 100);
       } else {
-        console.log('RoomPasswordForm: No callback provided, redirecting to host dashboard');
-        // Redirect to host dashboard if no callback provided
         router.push(`/host/${roomId}`);
+        setTimeout(() => window.location.reload(), 100);
       }
-    } catch (err) {
-      console.error('RoomPasswordForm: Authentication error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to authenticate. Please try again.');
     } finally {
       setLoading(false);
     }

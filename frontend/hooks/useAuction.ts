@@ -311,7 +311,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
     participantId,
     onEvent: handleRealtimeEvent,
     onConnected: () => {
-      console.log('Connected to auction real-time updates');
+      
     },
   });
 

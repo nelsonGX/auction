@@ -11,7 +11,6 @@ import UpcomingItems from '@/components/auction/UpcomingItems';
 import CompletedItems from '@/components/auction/CompletedItems';
 import AuctionSummary from '@/components/auction/AuctionSummary';
 import useAuction from '@/hooks/useAuction';
-import { participantApi } from '@/lib/api';
 
 export default function AuctionRoom() {
   const params = useParams<{ roomId: string }>();
@@ -86,66 +85,6 @@ export default function AuctionRoom() {
       <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-b from-zinc-900 to-zinc-800">
         <div className="w-full max-w-md">
           <ParticipantForm roomId={roomId} onJoin={handleJoin} />
-          
-          {/* Debug info for joining - collapsed in a disclosure for cleaner UI */}
-          <div className="mt-6 p-4 bg-zinc-900/70 rounded-lg text-xs border border-zinc-700 animate-fade-in">
-            <details className="text-zinc-400">
-              <summary className="font-bold cursor-pointer hover:text-zinc-300 transition-colors">Debug Info</summary>
-              <div className="mt-3 space-y-3 pl-4 border-l border-zinc-700">
-                <div className="mb-2">
-                  <strong className="text-zinc-300">Room ID:</strong> <span className="font-mono">{roomId}</span>
-                </div>
-                <div className="mb-2">
-                  <strong className="text-zinc-300">LocalStorage:</strong> <span className="font-mono">{typeof window !== 'undefined' && localStorage.getItem(`participant_${roomId}`) || 'No data'}</span>
-                </div>
-                
-                {/* Debug button to clear stored participant */}
-                <button
-                  onClick={() => {
-                    localStorage.removeItem(`participant_${roomId}`);
-                    window.location.reload();
-                  }}
-                  className="mt-2 bg-red-700 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded transition-colors"
-                >
-                  Clear Stored Participant
-                </button>
-                
-                {/* Debug form to force join */}
-                <div className="mt-4 pt-4 border-t border-zinc-700">
-                  <h5 className="font-bold mb-2">Force Join (Debug)</h5>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Username"
-                      className="flex-1 px-3 py-1.5 bg-zinc-800 border border-zinc-600 text-zinc-200 rounded"
-                      id="debugUsername"
-                    />
-                    <button
-                      onClick={async () => {
-                        const debugUsername = (document.getElementById('debugUsername') as HTMLInputElement).value;
-                        if (debugUsername) {
-                          try {
-                            const data = await participantApi.join(roomId, debugUsername);
-                            handleJoin(data.participantId, debugUsername);
-                            
-                            // Double check localStorage was set
-                            console.log('Participant joined:', data);
-                            console.log('LocalStorage after join:', localStorage.getItem(`participant_${roomId}`));
-                          } catch (err) {
-                            console.error('Debug join error:', err);
-                            alert('Error joining: ' + (err as Error).message);
-                          }
-                        }
-                      }}
-                      className="bg-yellow-700 hover:bg-yellow-600 text-white px-3 py-1.5 rounded transition-colors"
-                    >
-                      Force Join
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </details>
-          </div>
         </div>
       </div>
     );
