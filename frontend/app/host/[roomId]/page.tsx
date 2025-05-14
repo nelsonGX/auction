@@ -227,7 +227,13 @@ export default function HostDashboard() {
       console.log('HostDashboard: Authentication callback wrapper called with hostId:', hostId);
     };
     
-    return <RoomPasswordForm onAuthentication={authCallback} />;
+    return (
+    <>
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+      <RoomPasswordForm onAuthentication={authCallback} />
+    </div>
+    </>
+    );
   }
   
   console.log('HostDashboard: User authenticated, showing dashboard')

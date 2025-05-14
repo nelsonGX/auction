@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { roomApi } from '../../lib/api';
-import { setHostAuthentication, testLocalStorage, debugAuthState } from '../../utils/debugHelpers';
 
 type RoomPasswordFormProps = {
   onAuthentication?: (hostId: string) => void;
@@ -167,91 +166,6 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
     }
   };
 
-  // Test authentication functionality and debug the auth state
-  const handleDebug = async () => {
-    console.log('Debug button clicked');
-    console.log('RoomId:', roomId);
-    console.log('onAuthentication exists:', !!onAuthentication);
-    console.log('onAuthentication type:', typeof onAuthentication);
-    
-    // Test localStorage
-    const isLocalStorageWorking = testLocalStorage();
-    console.log('LocalStorage working:', isLocalStorageWorking);
-    
-    // Look at existing data
-    debugAuthState(roomId || '');
-    
-    if (!roomId) {
-      console.error('Cannot manually set auth - roomId is missing');
-      return;
-    }
-    
-    // Check if session auth is working
-    try {
-      console.log('Checking current session state');
-      const sessionCheck = await roomApi.checkHostAuth(roomId);
-      console.log('Current session state:', sessionCheck);
-    } catch (err) {
-      console.error('Error checking session:', err);
-    }
-    
-    // Force authentication with a generated ID
-    console.log('Attempting to force authentication');
-    
-    // Set a test host ID for debugging
-    const testHostId = 'direct-test-host-id-' + Date.now();
-    console.log('Generated test host ID:', testHostId);
-    
-    // Attempt to authenticate using the API (with a debug password)
-    try {
-      console.log('Attempting to call auth API directly with debug password');
-      const debugPassword = 'DEBUG_PASSWORD';
-      
-      // This is just for debugging - normally we would never do this
-      // We're using a special debug endpoint or a known password just for testing
-      const result = await roomApi.authenticate(roomId, debugPassword).catch(() => {
-        console.log('API auth failed (expected), using manual auth');
-        return { authenticated: false };
-      });
-      
-      if (result.authenticated) {
-        console.log('API auth succeeded unexpectedly - using returned data');
-        
-        if (onAuthentication) {
-          onAuthentication('id' in result ? result.id : testHostId);
-        } else {
-          router.push(`/host/${roomId}`);
-        }
-        return;
-      }
-    } catch (err) {
-      console.log('Auth API error (expected):', err);
-    }
-    
-    // Fallback to manual auth
-    if (onAuthentication) {
-      console.log('Direct call to onAuthentication');
-      try {
-        onAuthentication(testHostId);
-        console.log('onAuthentication call completed');
-      } catch (error) {
-        console.error('Error calling onAuthentication:', error);
-      }
-    } else {
-      console.log('No onAuthentication callback available');
-      
-      // Try to set localStorage directly
-      const success = setHostAuthentication(roomId, testHostId);
-      console.log('Manual localStorage set result:', success);
-      
-      if (success) {
-        // Force reload the page
-        console.log('Reloading page...');
-        window.location.reload();
-      }
-    }
-  };
-
   // Show loading state while checking for existing auth
   if (checkingExistingAuth) {
     return (
@@ -309,17 +223,6 @@ export default function RoomPasswordForm({ onAuthentication }: RoomPasswordFormP
           ) : (
             'Access Host Dashboard'
           )}
-        </button>
-        
-        {/* Debug button - only for development */}
-        <button 
-          type="button"
-          className="w-full mt-4 bg-zinc-700 text-zinc-200 py-2 px-4 rounded-lg hover:bg-zinc-600 
-          focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 
-          focus:ring-offset-zinc-800 text-sm transition-all duration-200"
-          onClick={handleDebug}
-        >
-          Debug Authentication (Dev Only)
         </button>
       </form>
     </div>
