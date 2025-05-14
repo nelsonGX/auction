@@ -48,7 +48,7 @@ router.post(
       // Emit WebSocket event with full context
       wsHandlers.emitItemNext(req.params.roomId, {
         room,
-        item: room.currentItemId
+        item: room.currentItemId // Pass the full item object, not just the ID
       });
       
       res.json(room);

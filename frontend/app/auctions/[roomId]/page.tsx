@@ -2,17 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import ParticipantForm from '../../../components/auth/ParticipantForm';
-import CurrentItem from '../../../components/auction/CurrentItem';
-import BidControls from '../../../components/auction/BidControls';
-import BidHistory from '../../../components/auction/BidHistory';
-import ParticipantsList from '../../../components/auction/ParticipantsList';
-import UpcomingItems from '../../../components/auction/UpcomingItems';
-import CompletedItems from '../../../components/auction/CompletedItems';
-import AuctionSummary from '../../../components/auction/AuctionSummary';
-import Countdown from '../../../components/auction/Countdown';
-import useAuction from '../../../hooks/useAuction';
-import { participantApi } from '../../../lib/api';
+import ParticipantForm from '@/components/auth/ParticipantForm';
+import CurrentItem from '@/components/auction/CurrentItem';
+import BidControls from '@/components/auction/BidControls';
+import BidHistory from '@/components/auction/BidHistory';
+import ParticipantsList from '@/components/auction/ParticipantsList';
+import UpcomingItems from '@/components/auction/UpcomingItems';
+import CompletedItems from '@/components/auction/CompletedItems';
+import AuctionSummary from '@/components/auction/AuctionSummary';
+import useAuction from '@/hooks/useAuction';
+import { participantApi } from '@/lib/api';
 
 export default function AuctionRoom() {
   const params = useParams<{ roomId: string }>();
@@ -249,13 +248,6 @@ export default function AuctionRoom() {
                     item={auction.currentItem} 
                     timeRemaining={auction.timeRemaining} 
                   />
-                  {auction.currentItem && auction.timeRemaining !== null && (
-                    <div className="absolute top-4 right-4">
-                      <Countdown 
-                        seconds={auction.timeRemaining} 
-                      />
-                    </div>
-                  )}
                 </div>
                 
                 {/* Bid Controls */}

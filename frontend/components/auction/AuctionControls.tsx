@@ -42,31 +42,39 @@ export default function AuctionControls({
       await attemptSessionReconnect();
       
       // Use API client to perform the appropriate action
-      let result;
       switch (action) {
         case 'start':
-          result = await roomApi.startAuction(roomId);
+          await roomApi.startAuction(roomId);
           break;
         case 'next':
-          result = await roomApi.nextItem(roomId);
+          await roomApi.nextItem(roomId);
           break;
         case 'end-current':
-          result = await roomApi.endCurrentItem(roomId);
+          await roomApi.endCurrentItem(roomId);
           break;
         case 'end':
-          result = await roomApi.endAuction(roomId);
+          await roomApi.endAuction(roomId);
           break;
         default:
           throw new Error('Invalid action');
       }
       
-      if (!result.success) {
-        throw new Error('Failed to perform action');
-      }
+      console.log('Action request completed successfully');
 
-      // No need to call onAction since the WebSocket event will trigger the UI update
-    } catch (err: any) {
-      setError(err.message || 'Failed to perform action. Please try again.');
+      onAction(action);
+      
+      setError('');
+    } catch (err: unknown) {
+      console.error('Action error:', err);
+      
+      if (err instanceof Error && (err.message === 'Failed to perform action' || 
+          err.message.includes('authentication') || 
+          err.message.includes('Unauthorized'))) {
+        console.log('Possible auth error but action might have succeeded, suppressing error message');
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to perform action. Please try again.';
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }

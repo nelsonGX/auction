@@ -61,8 +61,9 @@ export default function BidControls({
 
       setBidAmount('');
       onBidPlaced();
-    } catch (err: any) {
-      setError(err.message || 'Failed to place bid. Please try again.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to place bid. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ export default function BidControls({
   };
 
   // Quick bid buttons (current + 5, +10, +50)
-  const quickBidOptions = [5, 10, 50];
+  const quickBidOptions = [1, 5, 10, 50, 100];
 
   const handleQuickBid = (increment: number) => {
     setBidAmount((minimumBid + increment).toString());

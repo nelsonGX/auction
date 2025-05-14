@@ -1,27 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { roomApi } from '../../../lib/api';
-import RoomPasswordForm from '../../../components/auth/RoomPasswordForm';
-import ShareLink from '../../../components/room/ShareLink';
-import ItemForm from '../../../components/room/ItemForm';
-import ItemQueue from '../../../components/room/ItemQueue';
-import AuctionControls from '../../../components/auction/AuctionControls';
-import CurrentItem from '../../../components/auction/CurrentItem';
-import BidHistory from '../../../components/auction/BidHistory';
-import ParticipantsList from '../../../components/auction/ParticipantsList';
-import UpcomingItems from '../../../components/auction/UpcomingItems';
-import CompletedItems from '../../../components/auction/CompletedItems';
-import AuctionSummary from '../../../components/auction/AuctionSummary';
-import Countdown from '../../../components/auction/Countdown';
-import useAuction from '../../../hooks/useAuction';
+import { useParams, useRouter } from 'next/navigation';
+import { roomApi } from '@/lib/api';
+import RoomPasswordForm from '@/components/auth/RoomPasswordForm';
+import ShareLink from '@/components/room/ShareLink';
+import ItemForm from '@/components/room/ItemForm';
+import ItemQueue from '@/components/room/ItemQueue';
+import AuctionControls from '@/components/auction/AuctionControls';
+import CurrentItem from '@/components/auction/CurrentItem';
+import BidHistory from '@/components/auction/BidHistory';
+import ParticipantsList from '@/components/auction/ParticipantsList';
+import UpcomingItems from '@/components/auction/UpcomingItems';
+import CompletedItems from '@/components/auction/CompletedItems';
+import AuctionSummary from '@/components/auction/AuctionSummary';
+import useAuction from '@/hooks/useAuction';
 
 export default function HostDashboard() {
   const params = useParams<{ roomId: string }>()
   const roomId = params.roomId;
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [participantId, setParticipantId] = useState<string | null>(null);
+  const router = useRouter();
   
   // Check for authentication (using both session and localStorage)
   useEffect(() => {
@@ -201,18 +201,34 @@ export default function HostDashboard() {
 
   // Handle host actions
   const handleAction = (action: 'start' | 'next' | 'end-current' | 'end') => {
+    console.log(`Host action triggered: ${action}`);
+    
+    // We'll update the UI optimistically here rather than wait for WebSocket events
     switch (action) {
       case 'start':
-        auction.startAuction?.();
+        // Optimistically update UI
+        if (auction.room && !auction.room.isActive) {
+          // const updatedRoom = { ...auction.room, isActive: true };
+          
+          // Get first item
+          const firstItem = auction.items.find(item => item.position === 1);
+          if (firstItem) {
+            // Temporary UI update until WebSocket confirms
+            auction.refreshData();
+          }
+        }
         break;
       case 'next':
-        auction.nextItem?.();
+        // Refresh data to show the changes
+        auction.refreshData();
         break;
       case 'end-current':
-        auction.endCurrentItem?.();
+        // Refresh data to show the changes
+        auction.refreshData();
         break;
       case 'end':
-        auction.endAuction?.();
+        // Refresh data to show the changes
+        auction.refreshData();
         break;
     }
   };
@@ -225,6 +241,7 @@ export default function HostDashboard() {
   if (!isAuthenticated) {
     const authCallback = (hostId: string) => {
       console.log('HostDashboard: Authentication callback wrapper called with hostId:', hostId);
+      router.push(`/host/${roomId}`);
     };
     
     return (
@@ -327,13 +344,6 @@ export default function HostDashboard() {
                     item={auction.currentItem} 
                     timeRemaining={auction.timeRemaining} 
                   />
-                  {auction.currentItem && auction.timeRemaining !== null && (
-                    <div className="absolute top-4 right-4">
-                      <Countdown 
-                        seconds={auction.timeRemaining} 
-                      />
-                    </div>
-                  )}
                 </div>
                 
                 {/* Bid History */}

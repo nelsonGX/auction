@@ -130,6 +130,7 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
         break;
         
       case 'item:next':
+        console.log('Received item:next event with data:', data);
         if (data.item) {
           setCurrentItem(data.item);
           setBids([]);
