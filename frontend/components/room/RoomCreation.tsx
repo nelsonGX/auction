@@ -43,9 +43,11 @@ export default function RoomCreation() {
       });
       
       // Redirect to host dashboard
-      router.push(`/host/${data.roomId}`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to create room. Please try again.');
+      router.push(`/host/${data.id}`);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to create room. Please try again.'
+      );
     } finally {
       setLoading(false);
     }

@@ -64,7 +64,7 @@ export type WebSocketEvent =
 
 // API response types
 export interface CreateRoomResponse {
-  roomId: string;
+  id: string;
 }
 
 export interface JoinRoomResponse {

@@ -8,6 +8,12 @@
  * Falls back to current host if not specified
  */
 export function getApiBaseUrl(): string {
+  // Always return the hardcoded API URL for reliability
+  console.log("ApiHelpers: Forcing use of hardcoded API URL");
+  return 'http://172.26.208.1:4000';
+  
+  // Commented out this code as it's not working reliably
+  /*
   // Use environment variable if available
   if (process.env.NEXT_PUBLIC_API_URL) {
     // Check if it already has a protocol
@@ -21,10 +27,12 @@ export function getApiBaseUrl(): string {
   
   // Fall back to current host
   if (typeof window === 'undefined') {
-    return 'http://localhost:4000';
+    return 'http://172.26.208.1:4000';
   } else {
-    return `${window.location.protocol}//${window.location.host}`;
+    // For development, use the hardcoded API URL
+    return 'http://172.26.208.1:4000';
   }
+  */
 }
 
 /**
@@ -46,9 +54,9 @@ export function getWsUrl(): string {
   
   // Fall back to current host
   if (typeof window === 'undefined') {
-    return 'localhost:4000';
+    return '172.26.208.1:4000';
   } else {
-    return window.location.host;
+    return '172.26.208.1:4000';
   }
 }
 
@@ -60,7 +68,9 @@ export function getWsUrl(): string {
 export function getApiUrl(endpoint: string): string {
   const baseUrl = getApiBaseUrl();
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  return `${baseUrl}/api${path}`;
+  const fullUrl = `${baseUrl}/api${path}`;
+  console.log('ApiHelpers: getApiUrl called for endpoint:', endpoint, 'returning:', fullUrl);
+  return fullUrl;
 }
 
 /**
