@@ -17,6 +17,8 @@ import AuctionSummary from '@/components/auction/AuctionSummary';
 import useAuction from '@/hooks/useAuction';
 import Image from 'next/image';
 
+export const runtime = 'edge';
+
 export default function HostDashboard() {
   const params = useParams<{ roomId: string }>()
   const roomId = params.roomId;

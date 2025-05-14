@@ -12,6 +12,8 @@ import CompletedItems from '@/components/auction/CompletedItems';
 import AuctionSummary from '@/components/auction/AuctionSummary';
 import useAuction from '@/hooks/useAuction';
 
+export const runtime = 'edge';
+
 export default function AuctionRoom() {
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
@@ -107,8 +109,6 @@ export default function AuctionRoom() {
             <div className={`px-3 py-1.5 rounded-full text-sm font-medium 
               ${auction.room?.isActive 
                 ? 'bg-green-900/30 text-green-400 border border-green-800' 
-                : auction.room?.endTime 
-                  ? 'bg-blue-900/30 text-blue-400 border border-blue-800' 
                   : 'bg-yellow-900/30 text-yellow-400 border border-yellow-800'}`}
             >
               {auction.room?.isActive 
