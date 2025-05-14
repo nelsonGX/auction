@@ -115,8 +115,16 @@ export default function HostDashboard() {
     console.log(`Host action triggered: ${action}`);
     
     // For all actions, refresh data after a short delay to ensure WebSocket events are processed
+    // Use multiple refreshes for reliability
     setTimeout(() => {
+      console.log(`First refresh after ${action} action`);
       auction.refreshData();
+      
+      // Second refresh after a bit longer delay
+      setTimeout(() => {
+        console.log(`Second refresh after ${action} action`);
+        auction.refreshData();
+      }, 1000);
     }, 500);
   };
 

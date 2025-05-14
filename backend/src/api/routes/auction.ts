@@ -19,10 +19,21 @@ router.post(
     try {
       const room = await auctionService.startAuction(req.params.roomId);
       
+      // Import prisma to fetch the current item if needed
+      const prisma = require('../../utils/prisma').default;
+      
+      // Always fetch current item explicitly if we have an ID
+      let currentItem = null;
+      if (room.currentItemId) {
+        currentItem = await prisma.auctionItem.findUnique({
+          where: { id: room.currentItemId }
+        });
+      }
+      
       // Emit WebSocket event with full room data
       wsHandlers.emitRoomStart(req.params.roomId, {
         room,
-        currentItem: room.currentItem,
+        currentItem,
         currentItemId: room.currentItemId
       });
       
@@ -45,11 +56,27 @@ router.post(
     try {
       const room = await auctionService.moveToNextItem(req.params.roomId);
       
-      // Emit WebSocket event with full context
-      wsHandlers.emitItemNext(req.params.roomId, {
-        room,
-        item: room.currentItemId // Pass the full item object, not just the ID
-      });
+      // Import prisma to fetch the current item if needed
+      const prisma = require('../../utils/prisma').default;
+      
+      // Always fetch the current item explicitly using the currentItemId
+      if (room.currentItemId) {
+        const currentItem = await prisma.auctionItem.findUnique({
+          where: { id: room.currentItemId }
+        });
+        
+        // Emit WebSocket event with full context and explicit item data
+        wsHandlers.emitItemNext(req.params.roomId, {
+          room,
+          item: currentItem || undefined
+        });
+      } else {
+        // No current item, just send the room
+        wsHandlers.emitItemNext(req.params.roomId, {
+          room,
+          item: null
+        });
+      }
       
       res.json(room);
     } catch (error) {

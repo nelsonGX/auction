@@ -132,7 +132,14 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
       case 'item:next':
         console.log('Received item:next event with data:', data);
         
+        // Always fetch fresh data after any item transition
+        setTimeout(() => {
+          console.log('Fetching fresh data after item:next event');
+          fetchData();
+        }, 300);
+        
         if (data.item) {
+          console.log('Using item data from event:', data.item);
           setCurrentItem(data.item);
           setBids([]);
           // Reset timeout
@@ -157,14 +164,13 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
           }
           
           // Update in the items list if present
-          if (data.item) {
-            setItems(prev => 
-              prev.map(item => 
-                item.id === data.item?.id ? { ...item, isActive: true } : item
-              )
-            );
-          }
+          setItems(prev => 
+            prev.map(item => 
+              item.id === data.item?.id ? { ...data.item, isActive: true } : item
+            )
+          );
         } else if (data.room && data.room.currentItem) {
+          console.log('Using currentItem from room data:', data.room.currentItem);
           // If data contains room with currentItem but no separate item property
           setCurrentItem(data.room.currentItem);
           setBids([]);
@@ -181,8 +187,6 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
           }
         } else {
           console.error('Received item:next event with missing item data:', data);
-          // Refresh all data to ensure consistency
-          fetchData();
         }
         break;
         

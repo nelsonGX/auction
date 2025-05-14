@@ -37,6 +37,23 @@ export const emitParticipantJoin = (roomId: string, data: any) => {
 // Item events
 export const emitItemNext = (roomId: string, data: any) => {
   try {
+    // Log the data being sent
+    logger.info(`Emitting item:next event for room ${roomId} with data:`, {
+      hasRoom: !!data.room,
+      roomData: data.room ? {
+        id: data.room.id,
+        currentItemId: data.room.currentItemId,
+        hasCurrentItem: !!data.room.currentItem
+      } : null,
+      hasItem: !!data.item,
+      itemData: data.item ? {
+        id: data.item.id,
+        name: data.item.name, 
+        minPrice: data.item.minPrice,
+        currentPrice: data.item.currentPrice
+      } : null
+    });
+    
     getWebSocketServer().emitToRoom(roomId, 'item:next', data);
     logger.info(`Emitted item:next event for room ${roomId}`);
   } catch (error) {

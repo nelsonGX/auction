@@ -146,6 +146,18 @@ class AuctionService {
         },
       }),
     ]);
+    
+    // For safety, don't try to access potential non-existent property
+    // Instead, if we have a currentItemId, just fetch the item directly
+    if (updatedRoom[2].currentItemId) {
+      const currentItem = await prisma.auctionItem.findUnique({
+        where: { id: updatedRoom[2].currentItemId }
+      });
+      
+      // For the return value - the room object with its properties only
+      // We don't try to modify the TypeScript type by adding currentItem
+      return updatedRoom[2];
+    }
 
     return updatedRoom[2]; // Return the updated room
   }
