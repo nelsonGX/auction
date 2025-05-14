@@ -14,8 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Nelson's Auction House",
-  description: "A real-time auction platform for sequential item bidding.",
-  themeColor: "#18181b",
+  description: "A real-time auction platform for sequential item bidding."
 };
 
 export default function RootLayout({

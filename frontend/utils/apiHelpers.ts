@@ -1,23 +1,13 @@
 /**
- * Helper functions for API URL management
- */
-
-/**
  * Returns the base URL for API requests
  * Uses NEXT_PUBLIC_API_URL environment variable if available
  * Falls back to current host if not specified
  */
 export function getApiBaseUrl(): string {
-  // Always return the hardcoded API URL for reliability
-  
-  return 'http://172.26.208.1:4000';
-  
-  // Commented out this code as it's not working reliably
-  /*
   // Use environment variable if available
   if (process.env.NEXT_PUBLIC_API_URL) {
-    // Check if it already has a protocol
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    // Check if it already has a protocol
     if (apiUrl.startsWith('http://') || apiUrl.startsWith('https://')) {
       return apiUrl;
     }
@@ -25,20 +15,14 @@ export function getApiBaseUrl(): string {
     return `http://${apiUrl}`;
   }
   
-  // Fall back to current host
-  if (typeof window === 'undefined') {
-    return 'http://172.26.208.1:4000';
-  } else {
-    // For development, use the hardcoded API URL
-    return 'http://172.26.208.1:4000';
-  }
-  */
+  // Fall back to hardcoded default
+  return 'http://localhost:4000';
 }
 
 /**
  * Returns the WebSocket URL for realtime connections
  * Uses NEXT_PUBLIC_WS_URL environment variable if available
- * Falls back to current host if not specified
+ * Falls back to hardcoded default if not specified
  */
 export function getWsUrl(): string {
   // Use environment variable if available
@@ -52,12 +36,8 @@ export function getWsUrl(): string {
     return wsUrl;
   }
   
-  // Fall back to current host
-  if (typeof window === 'undefined') {
-    return '172.26.208.1:4000';
-  } else {
-    return '172.26.208.1:4000';
-  }
+  // Fall back to hardcoded default
+  return 'localhost:4000';
 }
 
 /**
