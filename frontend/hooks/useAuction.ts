@@ -22,6 +22,13 @@ export default function useAuction({ roomId, participantId, isHost = false }: Us
 
   // Fetch initial data
   const fetchData = useCallback(async () => {
+    // Don't try to fetch if roomId is not available
+    if (!roomId) {
+      setLoading(false);
+      setError("Room ID is missing");
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(null);

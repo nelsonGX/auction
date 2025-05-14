@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { roomApi } from '../../lib/api';
 
 interface RoomPasswordFormProps {
   roomId: string;
@@ -16,17 +17,18 @@ export default function RoomPasswordForm({ roomId }: RoomPasswordFormProps) {
     setLoading(true);
     setError('');
 
-    try {
-      // TODO: Implement API call to authenticate room password
-      const response = await fetch(`/api/rooms/${roomId}/auth`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      });
+    // Check if roomId is valid
+    if (!roomId || roomId === 'undefined') {
+      setError('Invalid room ID. Please check the URL and try again.');
+      setLoading(false);
+      return;
+    }
 
-      if (!response.ok) {
+    try {
+      // Use API client to authenticate room password
+      const result = await roomApi.authenticate(roomId, password);
+      
+      if (!result.success) {
         throw new Error('Invalid password');
       }
 

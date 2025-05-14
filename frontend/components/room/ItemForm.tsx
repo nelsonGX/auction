@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { itemApi } from '../../lib/api';
 
 interface ItemFormProps {
   roomId: string;
@@ -29,25 +30,14 @@ export default function ItemForm({ roomId, onItemAdded }: ItemFormProps) {
     setError('');
 
     try {
-      // TODO: Implement API call to add item
-      const response = await fetch(`/api/rooms/${roomId}/items`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          description: formData.description,
-          imageUrl: formData.imageUrl || undefined, // Don't send if empty
-          minPrice: parseFloat(formData.minPrice),
-          timeoutSecs: parseInt(formData.timeoutSecs),
-        }),
+      // Use API client to add item
+      await itemApi.createItem(roomId, {
+        name: formData.name,
+        description: formData.description,
+        imageUrl: formData.imageUrl || undefined, // Don't send if empty
+        minPrice: parseFloat(formData.minPrice),
+        timeoutSecs: parseInt(formData.timeoutSecs),
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to add item');
-      }
 
       // Reset form after successful submission
       setFormData({

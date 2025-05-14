@@ -9,15 +9,19 @@ import {
   Bid
 } from './types';
 
-// API base URL
-const API_BASE_URL = '/api';
+import { getApiUrl } from '../utils/apiHelpers';
+
+// Helper function to get full API URL
+const getFullApiUrl = (endpoint: string) => {
+  return getApiUrl(endpoint);
+};
 
 // Helper for fetch requests
 async function fetchApi<T>(
   endpoint: string, 
   options: RequestInit = {}
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(getFullApiUrl(endpoint), {
     ...options,
     headers: {
       'Content-Type': 'application/json',

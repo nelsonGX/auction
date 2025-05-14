@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { roomApi } from '../../lib/api';
 
 export default function RoomCreation() {
   const [formData, setFormData] = useState({
@@ -33,26 +34,13 @@ export default function RoomCreation() {
         throw new Error('Start time must be in the future');
       }
 
-      // TODO: Implement API call to create room
-      const response = await fetch('/api/rooms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          password: formData.password,
-          hostUsername: formData.hostUsername,
-          startTime: startTimeDate.toISOString(),
-        }),
+      // Use the API client to create a room
+      const data = await roomApi.create({
+        name: formData.name,
+        password: formData.password,
+        hostUsername: formData.hostUsername,
+        startTime: startTimeDate.toISOString(),
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to create room');
-      }
-
-      const data = await response.json();
       
       // Redirect to host dashboard
       router.push(`/host/${data.roomId}`);

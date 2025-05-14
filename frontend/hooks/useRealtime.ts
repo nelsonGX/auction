@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { WebSocketEvent } from '../lib/types';
+import { getWsFullUrl } from '../utils/apiHelpers';
 
 interface UseRealtimeOptions {
   roomId: string;
@@ -22,15 +23,15 @@ export default function useRealtime({
 
   // Create WebSocket connection
   const connect = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
+    // Don't try to connect if roomId is not provided
+    if (!roomId || wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
 
     try {
-      // For development environment, adapt the URL based on your server setup
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = process.env.NEXT_PUBLIC_WS_URL || window.location.host;
-      const wsUrl = `${protocol}//${host}/ws/rooms/${roomId}${participantId ? `?participantId=${participantId}` : ''}`;
+      // Use helper for consistent WebSocket URL      
+      const params = participantId ? { participantId } : {};
+      const wsUrl = getWsFullUrl(`/ws/rooms/${roomId}`, params);
       
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;

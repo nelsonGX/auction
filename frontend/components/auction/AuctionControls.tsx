@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { roomApi } from '../../lib/api';
 
 interface AuctionControlsProps {
   roomId: string;
@@ -23,17 +24,27 @@ export default function AuctionControls({
     setError('');
 
     try {
-      // TODO: Implement API call to control auction
-      const response = await fetch(`/api/rooms/${roomId}/${action}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to perform action');
+      // Use API client to perform the appropriate action
+      let result;
+      switch (action) {
+        case 'start':
+          result = await roomApi.startAuction(roomId);
+          break;
+        case 'next':
+          result = await roomApi.nextItem(roomId);
+          break;
+        case 'end-current':
+          result = await roomApi.endCurrentItem(roomId);
+          break;
+        case 'end':
+          result = await roomApi.endAuction(roomId);
+          break;
+        default:
+          throw new Error('Invalid action');
+      }
+      
+      if (!result.success) {
+        throw new Error('Failed to perform action');
       }
 
       onAction(action);

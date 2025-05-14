@@ -1,0 +1,75 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// The auction room itself
+model AuctionRoom {
+  id            String     @id @default(uuid())
+  name          String
+  password      String     // Hashed password for room access
+  hostUsername  String     // Username of the room creator
+  startTime     DateTime
+  endTime       DateTime?
+  isActive      Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  items         AuctionItem[]
+  participants  Participant[]
+  bids          Bid[]
+  currentItemId String?    // ID of the currently active item
+  currentItem   AuctionItem? @relation("CurrentItem", fields: [currentItemId], references: [id])
+}
+
+// Items being auctioned
+model AuctionItem {
+  id           String      @id @default(uuid())
+  name         String
+  description  String?
+  imageUrl     String?
+  minPrice     Float
+  currentPrice Float       @default(0)
+  timeoutSecs  Int         // Seconds before finalizing after last bid
+  position     Int         // Order position in the auction sequence
+  isActive     Boolean     @default(false)
+  isSold       Boolean     @default(false)
+  endedManually Boolean    @default(false)  // Flag for manual ending
+  endedAt      DateTime?   // When the auction for this item ended
+  roomId       String
+  room         AuctionRoom @relation(fields: [roomId], references: [id])
+  currentInRoom AuctionRoom[] @relation("CurrentItem")
+  bids         Bid[]
+  winnerId     String?
+  winner       Participant? @relation("WonItems", fields: [winnerId], references: [id])
+}
+
+// People participating in the auction
+model Participant {
+  id       String @id @default(uuid())
+  username String
+  isHost   Boolean @default(false)  // Flag to indicate if this is the host
+  roomId   String
+  room     AuctionRoom @relation(fields: [roomId], references: [id])
+  bids     Bid[]
+  wonItems AuctionItem[] @relation("WonItems")
+
+  @@unique([username, roomId])
+}
+
+// Individual bids
+model Bid {
+  id           String   @id @default(uuid())
+  amount       Float
+  timestamp    DateTime @default(now())
+  participantId String
+  participant  Participant @relation(fields: [participantId], references: [id])
+  itemId       String
+  item         AuctionItem @relation(fields: [itemId], references: [id])
+  roomId       String
+  room         AuctionRoom @relation(fields: [roomId], references: [id])
+}

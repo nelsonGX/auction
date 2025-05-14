@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { bidApi } from '../../lib/api';
 
 interface BidControlsProps {
   roomId: string;
@@ -55,23 +56,8 @@ export default function BidControls({
     setError('');
 
     try {
-      // TODO: Implement API call to place bid
-      const response = await fetch(`/api/rooms/${roomId}/bid`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          participantId,
-          itemId,
-          amount,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to place bid');
-      }
+      // Use API client to place bid
+      await bidApi.placeBid(roomId, participantId, itemId, amount);
 
       setBidAmount('');
       onBidPlaced();

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { participantApi } from '../../lib/api';
 
 interface ParticipantFormProps {
   roomId: string;
@@ -15,22 +16,16 @@ export default function ParticipantForm({ roomId, onJoin }: ParticipantFormProps
     setLoading(true);
     setError('');
 
+    // Check if roomId is valid
+    if (!roomId || roomId === 'undefined') {
+      setError('Invalid room ID. Please check the URL and try again.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // TODO: Implement API call to join room as participant
-      const response = await fetch(`/api/rooms/${roomId}/join`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to join auction');
-      }
-
-      const data = await response.json();
+      // Use API client to join room as participant
+      const data = await participantApi.join(roomId, username);
       onJoin(data.participantId, username);
     } catch (err: any) {
       setError(err.message || 'Failed to join. Please try again.');
